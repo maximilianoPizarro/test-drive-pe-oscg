@@ -1,0 +1,79 @@
+# Field Content Demo - App of Apps
+# This chart deploys multiple components as separate ArgoCD Applications
+
+# ============================================================
+# GitOps Configuration
+# ============================================================
+gitops:
+  # Repository containing the component charts
+  repoUrl: "https://github.com/rhpds/field-sourced-content.git"
+  revision: "main"
+  basePath: "examples/helm"
+
+# ArgoCD settings
+argocd:
+  namespace: openshift-gitops
+  project: default
+
+# ============================================================
+# Components - Enable/disable and configure each component
+# ============================================================
+components:
+
+  # --- Operator Installation ---
+  operator:
+    # Set to true to install the operator via OLM
+    # Set to false if operator is already installed on cluster
+    enabled: false
+    name: web-terminal
+    namespace: openshift-operators
+    channel: fast
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+    installPlanApproval: Automatic
+
+  # --- Hello World Demo Application ---
+  helloWorld:
+    enabled: true
+    namespace: terminal-demo
+    appName: hello-world
+    replicas: 1
+    image: registry.redhat.io/ubi8/httpd-24:latest
+    # User information for RHDP integration
+    userInfo:
+      enabled: true
+      title: "Web Terminal Demo"
+      instructions: "Access the Showroom lab guide, then click the terminal icon (>_) in the OpenShift console."
+
+  # --- Showroom Lab Guide ---
+  showroom:
+    enabled: true
+    namespace: showroom
+    name: showroom
+    # Lab guide Git repository - UPDATE THIS to your content repository
+    content:
+      repoUrl: "https://github.com/rhpds/showroom_template_nookbag.git"
+      repoRef: "main"
+      antoraPlaybook: "site.yml"
+      image: "quay.io/rhpds/showroom-content:v1.3.1"
+    # Embedded terminal configuration
+    terminal:
+      enabled: true
+      image: "quay.io/rhpds/openshift-showroom-terminal-ocp:latest"
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "512Mi"
+        limits:
+          cpu: "500m"
+          memory: "1Gi"
+
+# ============================================================
+# Values injected by field content workload (do not modify)
+# ============================================================
+deployer:
+  domain: ""
+  apiUrl: ""
+
+fieldContent:
+  deploymentType: "helm"
