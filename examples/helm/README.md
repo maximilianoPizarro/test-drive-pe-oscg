@@ -29,9 +29,26 @@ Each component under `components/` is a standalone Helm chart. The master chart 
 
 | Component | Description | Default |
 |-----------|-------------|---------|
+| `connectivityLinkOperators` | Import operators from [connectivity-link](https://gitlab.com/maximilianoPizarro/connectivity-link) (RHCL, Service Mesh, Dev Spaces, RHBK, RHDH, OpenTelemetry, Pipelines, Grafana, Kiali) | disabled |
 | `operator` | Install operators via OLM | disabled |
 | `helloWorld` | Sample httpd application | enabled |
 | `showroom` | Lab guide with terminal | enabled |
+
+### Connectivity Link Operators
+
+Import the operators Helm chart from [connectivity-link](https://gitlab.com/maximilianoPizarro/connectivity-link/-/blob/main/operators/Chart.yaml):
+
+```yaml
+# In values.yaml
+components:
+  connectivityLinkOperators:
+    enabled: true
+    repoUrl: "https://gitlab.com/maximilianoPizarro/connectivity-link.git"
+    revision: "main"
+    path: "operators"
+```
+
+The chart deploys OLM Subscriptions for Service Mesh, Grafana, Kiali, Cluster Observability, plus standalone templates for RHCL, OpenTelemetry, DevSpaces, RHBK, RHDH, and Pipelines operators. Customize `subscriptions` in values to add/remove operators.
 
 ## Configuration
 

@@ -20,6 +20,39 @@ argocd:
 # ============================================================
 components:
 
+  # --- Connectivity Link Operators (external GitLab repo) ---
+  # Imports operators from connectivity-link: RHCL, Service Mesh, Dev Spaces,
+  # RHBK, RHDH, OpenTelemetry, Pipelines, Grafana, Kiali
+  # Source: https://gitlab.com/maximilianoPizarro/connectivity-link/-/blob/main/operators/Chart.yaml
+  connectivityLinkOperators:
+    enabled: false
+    repoUrl: "https://gitlab.com/maximilianoPizarro/connectivity-link.git"
+    revision: "main"
+    path: "operators"
+    prune: true
+    selfHeal: true
+    channel: "stable-4.20"
+    version: "4.20.4"
+    # Helm values for subscriptions (templates/subscriptions.yaml)
+    # RHCL, OpenTelemetry, DevSpaces, RHBK, RHDH, Pipelines: via templates/*.yaml
+    subscriptions:
+      - name: servicemeshoperator3
+        namespace: openshift-operators
+        channel: stable
+        source: redhat-operators
+      - name: cluster-observability-operator
+        namespace: openshift-cluster-observability-operator
+        channel: stable
+        source: redhat-operators
+      - name: grafana-operator
+        namespace: openshift-operators
+        channel: v5
+        source: community-operators
+      - name: kiali-ossm
+        namespace: openshift-operators
+        channel: stable
+        source: redhat-operators
+
   # --- Operator Installation ---
   operator:
     # Set to true to install the operator via OLM
@@ -50,9 +83,9 @@ components:
     enabled: true
     namespace: showroom
     name: showroom
-    # Lab guide Git repository - UPDATE THIS to your content repository
+    # Lab guide Git repository - IA Development From Zero To Hero (MCP Agents on OpenShift AI)
     content:
-      repoUrl: "https://github.com/rhpds/showroom_template_nookbag.git"
+      repoUrl: "https://github.com/maximilianoPizarro/showroom-from-zero-to-hero.git"
       repoRef: "main"
       antoraPlaybook: "site.yml"
       image: "quay.io/rhpds/showroom-content:v1.3.1"
