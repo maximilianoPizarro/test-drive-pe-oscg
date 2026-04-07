@@ -129,6 +129,10 @@ spec:
               name: {{ $llmModel | quote }}
               modelId: {{ $llmModel | quote }}
               apiBase: {{ $llmEndpoint | quote }}
+    {{- else if eq .path "connectivity-link-rhbk" }}
+    helm:
+      valuesObject:
+        clusterDomain: {{ $domain }}
     {{- else if eq .path "connectivity-link-mcp-gateway" }}
     helm:
       valuesObject:

@@ -270,7 +270,7 @@ spec:
       name: keycloak-db-secret
     vendor: postgres
   hostname:
-    hostname: rhbk.apps.cluster-k6jxj.dynamic.redhatworkshops.io
+    hostname: rhbk.{{ .Values.clusterDomain }}
   http: {}
   instances: 1
   proxy:
