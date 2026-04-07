@@ -188,7 +188,7 @@ connectivityLink:
       prune: true
       selfHeal: true
       skipDryRunOnMissingResource: true
-    - id: connectivity-link-openshift-lightspeed
+    - id: ols
       enabled: true
       path: connectivity-link-openshift-lightspeed
       destinationNamespace: openshift-lightspeed
