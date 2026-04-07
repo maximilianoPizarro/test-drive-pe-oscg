@@ -112,14 +112,12 @@ spec:
   auth:
     tokenSource:
       authorizationHeader:
-        name: Authorization
         prefix: Bearer
       cookie:
         name: jwt
   provider:
     authorizationEndpoint: https://rhbk.apps.cluster-k6jxj.dynamic.redhatworkshops.io/realms/neuralbank/protocol/openid-connect/auth
     clientID: neuralbank-frontend
-    clientSecret: FYtNXAyn6eRmWxHIig7oLhK3zxQ1nLaF
     issuerURL: https://rhbk.apps.cluster-k6jxj.dynamic.redhatworkshops.io/realms/neuralbank
     redirectURI: https://neuralbank.apps.cluster-k6jxj.dynamic.redhatworkshops.io/auth/callback
     tokenEndpoint: https://rhbk.apps.cluster-k6jxj.dynamic.redhatworkshops.io/realms/neuralbank/protocol/openid-connect/token
@@ -216,13 +214,9 @@ metadata:
 spec:
   limits:
     customers-api-per-user:
-      conditions:
-      - operator: matches
-        selector: request.path
-        value: /api/customers
-      - operator: equals
-        selector: auth.identity.username
-        value: Javier Rodríguez Torres
+      when:
+      - predicate: "request.path.matches('/api/customers')"
+      - predicate: "auth.identity.username == 'Javier Rodríguez Torres'"
       counters:
       - expression: auth.identity.username
       rates:
