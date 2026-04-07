@@ -130,6 +130,10 @@ spec:
         app.kubernetes.io/component: mcp-server
     spec:
       serviceAccountName: openshift-mcp-server
+      tolerations:
+        - key: node.kubernetes.io/disk-pressure
+          operator: Exists
+          effect: NoSchedule
       containers:
         - name: openshift-mcp-server
           image: "quay.io/redhat-user-workloads/crt-nshift-lightspeed-tenant/openshift-mcp-server:latest"
@@ -254,6 +258,10 @@ spec:
         app.kubernetes.io/component: k8s-mcp
     spec:
       serviceAccountName: openshift-mcp-server
+      tolerations:
+        - key: node.kubernetes.io/disk-pressure
+          operator: Exists
+          effect: NoSchedule
       volumes:
         - name: config
           configMap:
@@ -367,6 +375,10 @@ spec:
         app.kubernetes.io/component: workflow-automation
     spec:
       securityContext: {}
+      tolerations:
+        - key: node.kubernetes.io/disk-pressure
+          operator: Exists
+          effect: NoSchedule
       containers:
         - name: n8n
           image: "docker.n8n.io/n8nio/n8n:1.91.3"
@@ -492,6 +504,10 @@ spec:
         app.kubernetes.io/component: mailpit
     spec:
       securityContext: {}
+      tolerations:
+        - key: node.kubernetes.io/disk-pressure
+          operator: Exists
+          effect: NoSchedule
       containers:
         - name: mailpit
           image: "axllent/mailpit:v1.21"
