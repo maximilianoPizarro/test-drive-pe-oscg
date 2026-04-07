@@ -89,7 +89,7 @@ openshift-mcp-server:
       enabled: true
   kubernetesMcp:
     enabled: true
-    toolsets: "core,helm"
+    toolsets: "core"
   serviceAccount:
     create: true
     scope: cluster
