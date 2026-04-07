@@ -85,7 +85,7 @@ connectivityLink:
       selfHeal: true
       skipDryRunOnMissingResource: false
     - id: connectivity-link-openshift-gitops
-      enabled: false
+      enabled: true
       path: connectivity-link-openshift-gitops
       destinationNamespace: openshift-gitops
       syncWave: "0"
@@ -101,7 +101,7 @@ connectivityLink:
       selfHeal: true
       skipDryRunOnMissingResource: true
     - id: connectivity-link-servicemeshoperator3
-      enabled: false
+      enabled: true
       path: connectivity-link-servicemeshoperator3
       destinationNamespace: openshift-operators
       syncWave: "3"
@@ -109,7 +109,7 @@ connectivityLink:
       selfHeal: true
       skipDryRunOnMissingResource: true
     - id: connectivity-link-rhbk
-      enabled: false
+      enabled: true
       path: connectivity-link-rhbk
       destinationNamespace: rhbk-operator
       syncWave: "2"
@@ -117,7 +117,7 @@ connectivityLink:
       selfHeal: true
       skipDryRunOnMissingResource: true
     - id: connectivity-link-developer-hub
-      enabled: false
+      enabled: true
       path: connectivity-link-developer-hub
       destinationNamespace: developer-hub
       syncWave: "3"
@@ -125,7 +125,7 @@ connectivityLink:
       selfHeal: true
       skipDryRunOnMissingResource: true
     - id: connectivity-link-rhcl-operator
-      enabled: false
+      enabled: true
       path: connectivity-link-rhcl-operator
       destinationNamespace: kuadrant-system
       syncWave: "6"
@@ -133,7 +133,7 @@ connectivityLink:
       selfHeal: true
       skipDryRunOnMissingResource: true
     - id: connectivity-link-observability
-      enabled: false
+      enabled: true
       path: connectivity-link-observability
       destinationNamespace: openshift-cluster-observability-operator
       syncWave: "5"
@@ -141,7 +141,7 @@ connectivityLink:
       selfHeal: true
       skipDryRunOnMissingResource: true
     - id: connectivity-link-kiali
-      enabled: false
+      enabled: true
       path: connectivity-link-kiali
       destinationNamespace: openshift-cluster-observability-operator
       syncWave: "6"
@@ -149,7 +149,7 @@ connectivityLink:
       selfHeal: true
       skipDryRunOnMissingResource: true
     - id: connectivity-link-opentelemetry
-      enabled: false
+      enabled: true
       path: connectivity-link-opentelemetry
       destinationNamespace: openshift-opentelemetry
       syncWave: "6"
@@ -157,7 +157,7 @@ connectivityLink:
       selfHeal: true
       skipDryRunOnMissingResource: true
     - id: connectivity-link-litemaas
-      enabled: false
+      enabled: true
       path: connectivity-link-litemaas
       destinationNamespace: litemaas
       syncWave: "6"
@@ -165,7 +165,7 @@ connectivityLink:
       selfHeal: true
       skipDryRunOnMissingResource: true
     - id: connectivity-link-openshift-ai
-      enabled: false
+      enabled: true
       path: connectivity-link-openshift-ai
       destinationNamespace: openshift-ai
       syncWave: "6"
@@ -173,7 +173,7 @@ connectivityLink:
       selfHeal: true
       skipDryRunOnMissingResource: true
     - id: connectivity-link-devspaces
-      enabled: false
+      enabled: true
       path: connectivity-link-devspaces
       destinationNamespace: devspaces
       syncWave: "7"
@@ -181,7 +181,7 @@ connectivityLink:
       selfHeal: true
       skipDryRunOnMissingResource: true
     - id: connectivity-link-neuralbank-stack
-      enabled: false
+      enabled: true
       path: connectivity-link-neuralbank-stack
       destinationNamespace: neuralbank-stack
       syncWave: "5"

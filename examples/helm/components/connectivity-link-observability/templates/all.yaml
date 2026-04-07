@@ -396,7 +396,7 @@ metadata:
   name: thanos-querier-connectivity-link
   namespace: openshift-cluster-observability-operator
 spec:
-  host: thanos-querier.apps.cluster-6tx4w.6tx4w.sandbox5380.opentlc.com
+  host: thanos-querier.apps.cluster-8wffz.dynamic.redhatworkshops.io
   port:
     targetPort: http
   tls:

@@ -152,11 +152,11 @@ subjects:
 ---
 apiVersion: v1
 data:
-  CORS_ORIGIN: https://litemaas.apps.cluster-6tx4w.6tx4w.sandbox5380.opentlc.com
-  FRONTEND_HOST: litemaas.apps.cluster-6tx4w.6tx4w.sandbox5380.opentlc.com
+  CORS_ORIGIN: https://litemaas.apps.cluster-8wffz.dynamic.redhatworkshops.io
+  FRONTEND_HOST: litemaas.apps.cluster-8wffz.dynamic.redhatworkshops.io
   LITELLM_API_URL: http://litellm:4000
-  OAUTH_CALLBACK_URL: https://litemaas.apps.cluster-6tx4w.6tx4w.sandbox5380.opentlc.com/api/auth/callback
-  OAUTH_ISSUER: https://oauth-openshift.apps.cluster-6tx4w.6tx4w.sandbox5380.opentlc.com
+  OAUTH_CALLBACK_URL: https://litemaas.apps.cluster-8wffz.dynamic.redhatworkshops.io/api/auth/callback
+  OAUTH_ISSUER: https://oauth-openshift.apps.cluster-8wffz.dynamic.redhatworkshops.io
 kind: ConfigMap
 metadata:
   name: litemaas-cluster-config
@@ -358,7 +358,7 @@ spec:
         - name: NODE_TLS_REJECT_UNAUTHORIZED
           value: "0"
         - name: LITELLM_API_URL
-          value: https://litemaas.apps.cluster-6tx4w.6tx4w.sandbox5380.opentlc.com
+          value: https://litemaas.apps.cluster-8wffz.dynamic.redhatworkshops.io
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
@@ -733,7 +733,7 @@ metadata:
   namespace: litemaas
 spec:
   hostnames:
-  - litemaas.apps.cluster-6tx4w.6tx4w.sandbox5380.opentlc.com
+  - litemaas.apps.cluster-8wffz.dynamic.redhatworkshops.io
   parentRefs:
   - name: litemaas-gateway
     namespace: litemaas
@@ -813,7 +813,7 @@ metadata:
   name: litemaas-via-gateway
   namespace: litemaas
 spec:
-  host: litemaas.apps.cluster-6tx4w.6tx4w.sandbox5380.opentlc.com
+  host: litemaas.apps.cluster-8wffz.dynamic.redhatworkshops.io
   port:
     targetPort: http
   tls:

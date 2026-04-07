@@ -75,7 +75,7 @@ metadata:
   name: jaeger
   namespace: openshift-opentelemetry
 spec:
-  host: jaeger.apps.cluster-6tx4w.6tx4w.sandbox5380.opentlc.com
+  host: jaeger.apps.cluster-8wffz.dynamic.redhatworkshops.io
   port:
     targetPort: query
   tls:
