@@ -6,6 +6,8 @@ kind: Secret
 metadata:
   name: llm-credentials
   namespace: openshift-lightspeed
+  labels:
+    app.kubernetes.io/part-of: connectivity-link-lightspeed
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 type: Opaque
@@ -19,6 +21,8 @@ apiVersion: ols.openshift.io/v1alpha1
 kind: OLSConfig
 metadata:
   name: cluster
+  labels:
+    app.kubernetes.io/part-of: connectivity-link-lightspeed
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
