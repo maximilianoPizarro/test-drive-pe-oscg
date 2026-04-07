@@ -164,7 +164,7 @@ spec:
     targetPort: 5432
   selector:
     app: postgresql-db
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
