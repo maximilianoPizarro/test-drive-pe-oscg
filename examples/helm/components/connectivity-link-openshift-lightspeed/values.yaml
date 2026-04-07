@@ -5,9 +5,6 @@ clusterDomain: apps.cluster-8wffz.dynamic.redhatworkshops.io
 # ============================================================
 n8n:
   fullnameOverride: n8n
-  commonLabels:
-    app.kubernetes.io/part-of: connectivity-link-lightspeed
-    app.openshift.io/runtime: nodejs
   enableServiceLinks: false
   podSecurityContext: {}
   securityContext:
@@ -67,9 +64,6 @@ n8n:
 # ============================================================
 openshift-mcp-server:
   fullnameOverride: openshift-mcp-server
-  commonLabels:
-    app.kubernetes.io/part-of: connectivity-link-lightspeed
-    app.openshift.io/runtime: golang
   namespace: openshift-lightspeed
   litellm:
     enabled: true
