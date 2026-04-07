@@ -47,11 +47,15 @@ spec:
       cluster resources or operations, you MUST call the appropriate tool.
       Do NOT suggest CLI commands — use tools instead.
 
-      Available tools for READING: pods_list, resources_list, resources_get,
-      pods_log, pods_top, nodes_top, projects_list.
-      For CREATING or UPDATING: resources_create_or_update (pass valid YAML).
-      For DELETING: resources_delete.
-      For SCALING: resources_scale.
+      Tools are prefixed by server. Use the k8s_ prefix for Kubernetes operations:
+        READING: k8s_pods_list, k8s_resources_list, k8s_resources_get,
+          k8s_pods_log, k8s_pods_top, k8s_nodes_top, k8s_projects_list.
+        CREATING/UPDATING: k8s_resources_create_or_update (pass valid YAML).
+        DELETING: k8s_resources_delete.
+        SCALING: k8s_resources_scale.
+
+      Use the ocp_ prefix for OpenShift-specific operations:
+        ocp_listPods, ocp_createDeployment, ocp_monitorDeployments, etc.
 
       Always prefer tools over documentation answers.
     deployment:
@@ -72,6 +76,6 @@ spec:
     introspectionEnabled: true
     userDataCollection: {}
   mcpServers:
-    - name: kubernetes-mcp-server
-      url: "http://field-content-ols-k8s-mcp.openshift-lightspeed.svc.cluster.local:8085/mcp"
+    - name: mcp-gateway
+      url: "http://mcp-gateway-istio.mcp-system.svc.cluster.local:8080/mcp"
       timeout: 120
