@@ -9,7 +9,7 @@ Tras desplegar **neuralbank-backend**, conviene inspeccionar cómo **Tekton** ma
 ## Abrir la consola de Pipelines
 
 1. Inicia sesión en la **OpenShift Console**.
-2. Selecciona el **namespace** donde se creó el backend Neuralbank.
+2. Selecciona el proyecto **`<user_name>-neuralbank`**.
 3. En el menú lateral, ve a **Pipelines** (o **CI/CD -> Pipelines** según la versión de la consola).
 
 Aquí verás la definición del **Pipeline** y los **PipelineRuns** recientes generados al crear o actualizar el repositorio.

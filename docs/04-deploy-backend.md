@@ -26,11 +26,12 @@ Navegación: Developer Hub -> Create -> Software Template -> "Neuralbank: Backen
 Rellena los campos solicitados por la plantilla. Valores orientativos:
 
 - **Nombre del componente / repositorio**: `neuralbank-backend`
-- **Propietario (owner)**: tu entidad de catálogo; usa `<user_name>` (el mismo valor que tu usuario del taller).
+- **Propietario (owner)**: tu entidad de catálogo; usa `<user_name>` (el mismo valor que tu usuario del taller). El **owner** define el namespace de despliegue: **`<user_name>-neuralbank`**.
 
 ```bash
 name = neuralbank-backend
 owner = <user_name>
+→ namespace resultante: <user_name>-neuralbank
 ```
 
 > **Warning:** No uses espacios en el nombre del repositorio si la plantilla no lo permite. Respeta mayúsculas/minúsculas si el pipeline o Argo CD las esperan fijas.
@@ -63,12 +64,12 @@ Gitea -> Repositorios -> neuralbank-backend -> comprobar estructura (src/, manif
 ## Paso 6: Validar el despliegue en OpenShift
 
 1. Entra en la **OpenShift Console** con las mismas credenciales o las indicadas por el instructor.
-2. Cambia al **namespace** donde se desplegó el backend (según la convención del workshop).
+2. Cambia al proyecto **`<user_name>-neuralbank`** donde se desplegó el backend.
 3. En **Workloads -> Pods**, verifica que los pods del backend están **Running** y sin reinicios continuos.
 4. En **Networking -> Routes** (o **Routes / Ingress** según versión), localiza la ruta HTTP(S) del servicio.
 
 ```bash
-OpenShift Console -> Project (namespace del taller) -> Pods -> Estado Running
+OpenShift Console -> Project: <user_name>-neuralbank -> Pods -> Estado Running
 OpenShift Console -> Networking -> Route -> URL pública del backend
 ```
 

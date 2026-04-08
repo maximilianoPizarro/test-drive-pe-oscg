@@ -29,10 +29,12 @@ spec:
           type: string
           default: "Frontend de visualización de créditos para Neuralbank"
         owner:
-          title: Usuario
+          title: Usuario (OpenShift username)
           type: string
-          description: "Tu usuario (ej: user1)"
+          description: "Tu usuario de OpenShift. Define el namespace de deploy: <usuario>-neuralbank"
+          default: ${{ user.entity.metadata.name }}
           pattern: "^user[0-9]+$"
+          ui:help: "Ej: user1 → namespace user1-neuralbank"
   steps:
     - id: fetch-skeleton
       name: Generar Skeleton
@@ -43,7 +45,7 @@ spec:
           name: ${{ parameters.name }}
           owner: ${{ parameters.owner }}
           description: ${{ parameters.description }}
-          namespace: "${{ parameters.owner }}-devspaces"
+          namespace: "${{ parameters.owner }}-neuralbank"
           imageRegistry: "image-registry.openshift-image-registry.svc:5000"
     - id: publish
       name: Publicar en Gitea

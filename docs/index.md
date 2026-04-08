@@ -37,6 +37,8 @@ Neuralbank es una entidad financiera que necesita modernizar su stack tecnológi
 
 Tu usuario es `<user_name>`. La contraseña es `Welcome123!`.
 
+Tu namespace de trabajo es **`<user_name>-neuralbank`**. Todos los servicios que crees con las Software Templates se desplegarán ahí.
+
 > **Note:** El atributo `<user_name>` se rellena automáticamente según tu inicio de sesión en OpenShift.
 
 - **Developer Hub**: https://backstage-developer-hub-developer-hub.<cluster_domain>

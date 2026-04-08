@@ -75,7 +75,7 @@ Si Git pide credenciales, usa el mecanismo del taller (token, SSO o credenciales
 
 ## Observar el pipeline Tekton
 
-1. Ve a **OpenShift Console -> Pipelines -> PipelineRuns** en el namespace del backend.
+1. Ve a **OpenShift Console -> Pipelines -> PipelineRuns** en el proyecto **`<user_name>-neuralbank`**.
 2. Identifica una nueva ejecución disparada por el **push** reciente.
 
 Abre los logs de las tareas (`git-clone`, `maven-build`, `build-image`, `deploy`) y confirma que la imagen nueva se construye y se despliega.
