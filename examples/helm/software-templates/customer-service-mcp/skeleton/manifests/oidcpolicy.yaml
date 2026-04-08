@@ -13,7 +13,7 @@ spec:
         prefix: Bearer
   provider:
     clientID: backstage
-    issuerURL: https://rhbk.apps.cluster-k6jxj.dynamic.redhatworkshops.io/realms/backstage
+    issuerURL: https://rhbk.apps.cluster-4kzmc.dynamic.redhatworkshops.io/realms/backstage
   targetRef:
     group: gateway.networking.k8s.io
     kind: HTTPRoute
