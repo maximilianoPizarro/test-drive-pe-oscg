@@ -39,7 +39,7 @@ commands:
   - id: mcp-inspector
     exec:
       component: tools
-      commandLine: "npx @anthropic-ai/mcp-inspector http://localhost:8080/api/mcp"
+      commandLine: "npx @anthropic-ai/mcp-inspector http://localhost:8080/mcp/sse"
       workingDir: ${PROJECT_SOURCE}
       group:
         kind: debug
