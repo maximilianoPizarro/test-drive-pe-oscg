@@ -3,7 +3,7 @@ kind: CheCluster
 metadata:
   annotations:
     argocd.argoproj.io/compare-options: IgnoreExtraneous=true
-    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true,ServerSideApply=true
     argocd.argoproj.io/sync-wave: "7"
   labels:
     app.kubernetes.io/instance: devspaces
@@ -13,41 +13,23 @@ spec:
   components:
     cheServer:
       debug: false
-      deployment:
-        resources:
-          limits:
-            cpu: 2000m
-            memory: 4Gi
-          requests:
-            cpu: 1000m
-            memory: 2Gi
-    devfileRegistry:
-      disableInternalRegistry: false
-      externalDevfileRegistries:
-      - url: https://registry.devfile.io
-    pluginRegistry:
-      openVSXURL: https://open-vsx.org
+      logLevel: INFO
+    dashboard: {}
+    devWorkspace: {}
+    devfileRegistry: {}
+    imagePuller:
+      enable: false
+    metrics:
+      enable: true
+    pluginRegistry: {}
+  containerRegistry: {}
   devEnvironments:
-    defaultComponents:
-    - container:
-        cpuLimit: 4000m
-        cpuRequest: 2000m
-        image: registry.redhat.io/devspaces/udi-rhel9:latest
-        memoryLimit: 8Gi
-        memoryRequest: 4Gi
-      name: universal-developer-image
-    defaultEditor: che-incubator/che-code/latest
+    startTimeoutSeconds: 600
     defaultNamespace:
       autoProvision: true
       template: <username>-devspaces
-    disableContainerBuildCapabilities: false
-    secondsOfInactivityBeforeIdling: 3600
+    secondsOfRunBeforeIdling: 1800
     storage:
       pvcStrategy: per-user
-  security:
-    containerSecurityContext:
-      allowPrivilegeEscalation: true
-      capabilities:
-        add:
-        - SETGID
-        - SETUID
+  gitServices: {}
+  networking: {}
