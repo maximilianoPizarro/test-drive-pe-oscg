@@ -8,7 +8,7 @@ En este módulo desplegarás **Neuralbank Backend** usando una Software Template
 
 ## Prerrequisitos
 
-- Acceso a Developer Hub con tu usuario (`<user_name>`) y contraseña `Welcome123!`.
+- Acceso a Developer Hub con tu usuario (`YOUR_USER`) y contraseña `Welcome123!`.
 - Permisos para crear componentes desde plantillas en el catálogo del workshop.
 
 ## Paso 1: Abrir la creación desde plantilla
@@ -26,12 +26,12 @@ Navegación: Developer Hub -> Create -> Software Template -> "Neuralbank: Backen
 Rellena los campos solicitados por la plantilla. Valores orientativos:
 
 - **Nombre del componente / repositorio**: `neuralbank-backend`
-- **Propietario (owner)**: tu entidad de catálogo; usa `<user_name>` (el mismo valor que tu usuario del taller). El **owner** define el namespace de despliegue: **`<user_name>-neuralbank`**.
+- **Propietario (owner)**: tu entidad de catálogo; usa `YOUR_USER` (el mismo valor que tu usuario del taller). El **owner** define el namespace de despliegue: **`YOUR_USER-neuralbank`**.
 
 ```bash
 name = neuralbank-backend
-owner = <user_name>
-→ namespace resultante: <user_name>-neuralbank
+owner = YOUR_USER
+→ namespace resultante: YOUR_USER-neuralbank
 ```
 
 > **Warning:** No uses espacios en el nombre del repositorio si la plantilla no lo permite. Respeta mayúsculas/minúsculas si el pipeline o Argo CD las esperan fijas.
@@ -64,12 +64,12 @@ Gitea -> Repositorios -> neuralbank-backend -> comprobar estructura (src/, manif
 ## Paso 6: Validar el despliegue en OpenShift
 
 1. Entra en la **OpenShift Console** con las mismas credenciales o las indicadas por el instructor.
-2. Cambia al proyecto **`<user_name>-neuralbank`** donde se desplegó el backend.
+2. Cambia al proyecto **`YOUR_USER-neuralbank`** donde se desplegó el backend.
 3. En **Workloads -> Pods**, verifica que los pods del backend están **Running** y sin reinicios continuos.
 4. En **Networking -> Routes** (o **Routes / Ingress** según versión), localiza la ruta HTTP(S) del servicio.
 
 ```bash
-OpenShift Console -> Project: <user_name>-neuralbank -> Pods -> Estado Running
+OpenShift Console -> Project: YOUR_USER-neuralbank -> Pods -> Estado Running
 OpenShift Console -> Networking -> Route -> URL pública del backend
 ```
 
@@ -81,11 +81,11 @@ Desde tu navegador o con `curl`, prueba los recursos expuestos por la API de dem
 - `/api/credits`
 
 ```bash
-curl -sk "https://<host-del-route>/api/customers"
-curl -sk "https://<host-del-route>/api/credits"
+curl -sk "https://YOUR_ROUTE_HOST/api/customers"
+curl -sk "https://YOUR_ROUTE_HOST/api/credits"
 ```
 
-Sustituye `<host-del-route>` por el hostname que muestra la Route en OpenShift.
+Sustituye `YOUR_ROUTE_HOST` por el hostname que muestra la Route en OpenShift.
 
 > **Note:** Si recibes redirecciones de autenticación o `401/403`, puede haber una política OIDC o RBAC delante; consulta con el instructor si el taller prevé acceso anónimo en estos endpoints.
 

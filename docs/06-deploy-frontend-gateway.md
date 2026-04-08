@@ -8,7 +8,7 @@ En este módulo desplegarás el **frontend** Neuralbank y el servicio **Customer
 
 ## Contexto
 
-Ya deberías tener **neuralbank-backend** en ejecución en el proyecto **`<user_name>-neuralbank`**. Ahora añadirás:
+Ya deberías tener **neuralbank-backend** en ejecución en el proyecto **`YOUR_USER-neuralbank`**. Ahora añadirás:
 
 - **neuralbank-frontend**: interfaz web para visualizar datos de créditos expuestos por el backend.
 - **customer-service-mcp**: servidor MCP con recursos adicionales para el patrón de **connectivity link** (Gateway, HTTPRoute, OIDCPolicy, RateLimitPolicy).
@@ -17,14 +17,14 @@ Ya deberías tener **neuralbank-backend** en ejecución en el proyecto **`<user_
 
 1. En **Developer Hub**, ve a **Create** y elige la plantilla **Neuralbank: Frontend** (nombre puede variar ligeramente).
 2. Completa el formulario con un nombre coherente, por ejemplo `neuralbank-frontend`.
-3. Asigna el **owner** a tu usuario de taller (`<user_name>`, mismo criterio que en el backend).
+3. Asigna el **owner** a tu usuario de taller (`YOUR_USER`, mismo criterio que en el backend).
 4. Ejecuta **Create** y espera a que finalicen los pasos del scaffolder.
 
 ```bash
 Developer Hub -> Create -> "Neuralbank: Frontend"
 nombre: neuralbank-frontend
-owner: <user_name>
-→ namespace: <user_name>-neuralbank
+owner: YOUR_USER
+→ namespace: YOUR_USER-neuralbank
 ```
 
 > **Note:** Si el frontend espera una URL de API configurable, comprueba en el repo generado (Gitea) variables de entorno o `ConfigMap` que apunten al backend; ajústalas solo si el taller lo indica.
@@ -38,8 +38,8 @@ owner: <user_name>
 ```bash
 Developer Hub -> Create -> "Neuralbank: Customer Service MCP"
 nombre: customer-service-mcp
-owner: <user_name>
-→ namespace: <user_name>-neuralbank
+owner: YOUR_USER
+→ namespace: YOUR_USER-neuralbank
 ```
 
 Esta plantilla no solo genera código: materializa el patrón de **connectivity link** con objetos como **Gateway**, **HTTPRoute**, **OIDCPolicy** y **RateLimitPolicy**, según la convención del repositorio de plantillas del workshop.
@@ -56,7 +56,7 @@ Revisa que los **PipelineRuns** se hayan disparado o estén programados según l
 ## Paso 4: Comprobar aplicaciones en Argo CD
 
 1. Abre **Argo CD**.
-2. Localiza **Applications** para frontend y MCP (nombres ligados al repo o al proyecto **`<user_name>-neuralbank`**).
+2. Localiza **Applications** para frontend y MCP (nombres ligados al repo o al proyecto **`YOUR_USER-neuralbank`**).
 3. Verifica **sync** y **health**; sincroniza manualmente si tu rol lo permite y el estado lo requiere.
 
 > **Note:** Los recursos de Gateway API y políticas pueden aparecer como objetos adicionales en el grafo de la aplicación MCP; si alguno está en estado degradado, revisa eventos en OpenShift y la configuración del operador (Kuadrant / Istio) del entorno.
@@ -71,12 +71,12 @@ Abre cada ficha y comprueba enlaces al código, documentación y relaciones (por
 
 ## Paso 6: Inspeccionar Gateway y HTTPRoute en OpenShift
 
-1. En la **OpenShift Console**, selecciona el proyecto **`<user_name>-neuralbank`** (donde se despliegan frontend y MCP) o el indicado por el instructor.
+1. En la **OpenShift Console**, selecciona el proyecto **`YOUR_USER-neuralbank`** (donde se despliegan frontend y MCP) o el indicado por el instructor.
 2. Navega a **Networking** y busca recursos de **Gateway** y **HTTPRoute** (la ubicación exacta depende de la versión y de los CRD instalados).
 3. Anota el **hostname** o estado de los listeners y las reglas que enrutan hacia el Service del MCP.
 
 ```bash
-OpenShift Console -> Project: <user_name>-neuralbank -> Gateway / HTTPRoute -> host y backends
+OpenShift Console -> Project: YOUR_USER-neuralbank -> Gateway / HTTPRoute -> host y backends
 ```
 
 Opcionalmente, revisa **OIDCPolicy** y **RateLimitPolicy** asociados para entender cómo se protege el endpoint expuesto.

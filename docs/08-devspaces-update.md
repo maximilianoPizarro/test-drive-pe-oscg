@@ -79,16 +79,16 @@ Desde la terminal o la vista de control de código fuente del IDE:
 
 ```bash
 git status
-git add <archivos modificados>
+git add files-changed
 git commit -m "workshop: cambio demo desde Dev Spaces"
-git push origin <rama-principal>   # main o master según el repo
+git push origin main   # main o master según el repo
 ```
 
 Si Git pide credenciales, usa el mecanismo del taller (token, SSO o credenciales embebidas en Dev Spaces).
 
 ## Observar el pipeline Tekton
 
-1. Ve a **OpenShift Console -> Pipelines -> PipelineRuns** en el proyecto **`<user_name>-neuralbank`**.
+1. Ve a **OpenShift Console -> Pipelines -> PipelineRuns** en el proyecto **`YOUR_USER-neuralbank`**.
 2. Identifica una nueva ejecución disparada por el **push** reciente.
 
 Abre los logs de las tareas (`git-clone`, `maven-build`, `build-image`, `deploy`) y confirma que la imagen nueva se construye y se despliega.
@@ -103,7 +103,7 @@ Abre los logs de las tareas (`git-clone`, `maven-build`, `build-image`, `deploy`
 Prueba de nuevo los endpoints en la **Route** pública:
 
 ```bash
-curl -sk "https://<host-del-route>/api/<tu-endpoint-o-recurso-modificado>"
+curl -sk "https://YOUR_ROUTE_HOST/api/your-modified-endpoint"
 ```
 
 Deberías ver reflejado el cambio (nuevo JSON, mensaje distinto, etc.).

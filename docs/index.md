@@ -35,14 +35,14 @@ Neuralbank es una entidad financiera que necesita modernizar su stack tecnológi
 
 ### Acceso al entorno
 
-Tu usuario es `<user_name>`. La contraseña es `Welcome123!`.
+Tu usuario es `YOUR_USER`. La contraseña es `Welcome123!`.
 
-Tu namespace de trabajo es **`<user_name>-neuralbank`**. Todos los servicios que crees con las Software Templates se desplegarán ahí.
+Tu namespace de trabajo es **`YOUR_USER-neuralbank`**. Todos los servicios que crees con las Software Templates se desplegarán ahí.
 
-> **Note:** El atributo `<user_name>` se rellena automáticamente según tu inicio de sesión en OpenShift.
+> **Note:** El atributo `YOUR_USER` se rellena automáticamente según tu inicio de sesión en OpenShift.
 
-- **Developer Hub**: https://backstage-developer-hub-developer-hub.<cluster_domain>
-- **Gitea**: https://gitea.<cluster_domain>
-- **ArgoCD**: https://openshift-gitops-server-openshift-gitops.<cluster_domain>
-- **DevSpaces**: https://devspaces.<cluster_domain>
+- **Developer Hub**: `https://backstage-developer-hub-developer-hub.YOUR_CLUSTER_DOMAIN`
+- **Gitea**: `https://gitea.YOUR_CLUSTER_DOMAIN`
+- **ArgoCD**: `https://openshift-gitops-server-openshift-gitops.YOUR_CLUSTER_DOMAIN`
+- **DevSpaces**: `https://devspaces.YOUR_CLUSTER_DOMAIN`
 - **Terminal Web**: disponible en el panel derecho del showroom (tab "Terminal") para ejecutar comandos `oc`, `curl`, etc.
