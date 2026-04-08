@@ -5,6 +5,13 @@ nav_order: 1
 has_children: false
 ---
 
+[![OpenShift Commons](https://commons.openshift.org/images/RH_OpenShift_Commons_Logo.svg){: width="320" }](https://commons.openshift.org)
+
+Presentado en [**OpenShift Commons**](https://commons.openshift.org) — la comunidad donde usuarios, partners, clientes y contribuidores se reúnen para colaborar y avanzar en el ecosistema OpenShift.
+{: .fs-4 }
+
+---
+
 ## Bienvenido al Workshop
 
 En este workshop aprenderás a utilizar **Red Hat Developer Hub** como portal de desarrollo self-service para construir, desplegar y gestionar aplicaciones en OpenShift.
