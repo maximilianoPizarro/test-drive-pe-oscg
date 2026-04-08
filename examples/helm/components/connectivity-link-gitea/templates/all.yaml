@@ -12,7 +12,7 @@ spec:
     insecureEdgeTerminationPolicy: Redirect
   to:
     kind: Service
-    name: gitea-http-route
+    name: gitea-http
     weight: 100
   wildcardPolicy: None
 ---
@@ -44,7 +44,7 @@ spec:
             - -c
             - |
               set -e
-              BASE="http://gitea-http-route.gitea.svc.cluster.local:3000"
+              BASE="http://gitea-http.gitea.svc.cluster.local:3000"
               until curl -sf "$BASE/api/v1/version"; do
                 sleep 3
               done

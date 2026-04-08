@@ -229,8 +229,8 @@ data:
       baseUrl: "${RHDH_BASE_URL}"
     integrations:
       gitea:
-        - host: gitea.{{ .Values.clusterDomain }}
-          apiBaseUrl: https://gitea.{{ .Values.clusterDomain }}/api/v1
+        - host: gitea-gitea.{{ .Values.clusterDomain }}
+          apiBaseUrl: https://gitea-gitea.{{ .Values.clusterDomain }}/api/v1
           username: gitea-admin
           password: "Welcome123!"
     auth:
@@ -272,7 +272,7 @@ data:
         allow:
           - host: github.com
           - host: raw.githubusercontent.com
-          - host: gitea.{{ .Values.clusterDomain }}
+          - host: gitea-gitea.{{ .Values.clusterDomain }}
     signInPage: oidc
     catalog:
       providers:
