@@ -3,7 +3,7 @@ kind: Template
 metadata:
   name: neuralbank-customer-service-mcp
   title: "Neuralbank: Customer Service MCP"
-  description: "Creates an MCP (Model Context Protocol) server with Quarkus for Neuralbank's customer service. Includes tools for credit inquiry, customer information, and status updates. Automatically generates Gateway, OIDCPolicy, and RateLimitPolicy."
+  description: "Creates an MCP (Model Context Protocol) server with Quarkus for Neuralbank's customer service. Includes tools for credit inquiry, customer information, and status updates. Automatically generates Gateway, OIDCPolicy, RateLimitPolicy, Tekton CI/CD pipeline, ArgoCD deployment, and Gitea webhook."
   tags:
     - java
     - quarkus
@@ -37,6 +37,11 @@ spec:
           default: ${{ user.entity.metadata.name }}
           pattern: "^user[0-9]+$"
           ui:help: "E.g.: user1 → namespace user1-neuralbank"
+        clusterDomain:
+          title: Cluster Domain
+          type: string
+          default: "apps.cluster-l9nhj.dynamic.redhatworkshops.io"
+          ui:widget: hidden
   steps:
     - id: fetch-skeleton
       name: Generate Skeleton
@@ -49,11 +54,12 @@ spec:
           description: ${{ parameters.description }}
           namespace: "${{ parameters.owner }}-neuralbank"
           imageRegistry: "image-registry.openshift-image-registry.svc:5000"
+          clusterDomain: ${{ parameters.clusterDomain }}
     - id: publish
       name: Publish to Gitea
       action: publish:gitea
       input:
-        repoUrl: "gitea-gitea.apps.cluster-l9nhj.dynamic.redhatworkshops.io?owner=ws-${{ parameters.owner }}&repo=${{ parameters.name }}"
+        repoUrl: "gitea-gitea.${{ parameters.clusterDomain }}?owner=ws-${{ parameters.owner }}&repo=${{ parameters.name }}"
         description: ${{ parameters.description }}
         defaultBranch: main
         repoVisibility: public
@@ -63,6 +69,38 @@ spec:
       input:
         repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
         catalogInfoPath: /catalog-info.yaml
+    - id: create-argocd-app
+      name: Create ArgoCD Application
+      action: http:backstage:request
+      input:
+        method: POST
+        path: /api/argocd/createArgo
+        headers:
+          Content-Type: application/json
+        body:
+          clusterName: "openshift-gitops"
+          namespace: "${{ parameters.owner }}-neuralbank"
+          projectName: "default"
+          appName: ${{ parameters.name }}
+          sourceRepo: "https://gitea-gitea.${{ parameters.clusterDomain }}/ws-${{ parameters.owner }}/${{ parameters.name }}.git"
+          sourcePath: "manifests"
+          labelValue: ${{ parameters.name }}
+    - id: create-webhook
+      name: Create Gitea Webhook
+      action: http:backstage:request
+      input:
+        method: POST
+        path: "/api/proxy/gitea/repos/ws-${{ parameters.owner }}/${{ parameters.name }}/hooks"
+        headers:
+          Content-Type: application/json
+        body:
+          type: gitea
+          config:
+            url: "https://el-${{ parameters.name }}-listener-${{ parameters.owner }}-neuralbank.${{ parameters.clusterDomain }}"
+            content_type: json
+          events:
+            - push
+          active: true
   output:
     links:
       - title: Repository

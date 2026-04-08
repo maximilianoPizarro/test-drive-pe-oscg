@@ -1,4 +1,12 @@
 apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: neuralbank
+  description: Neuralbank financial platform
+spec:
+  owner: user:${{values.owner}}
+---
+apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: ${{values.name}}
@@ -7,6 +15,7 @@ metadata:
     backstage.io/kubernetes-id: ${{values.name}}
     backstage.io/kubernetes-namespace: ${{values.namespace}}
     argocd/app-name: ${{values.name}}
+    argocd/app-namespace: openshift-gitops
     tektonci/build-namespace: ${{values.namespace}}
   tags:
     - java
@@ -17,6 +26,7 @@ spec:
   type: service
   lifecycle: experimental
   owner: user:${{values.owner}}
+  system: neuralbank
   providesApis:
     - ${{values.name}}-api
 ---
@@ -24,23 +34,28 @@ apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
   name: ${{values.name}}-api
-  description: "API REST de gestión de créditos"
+  description: "Neuralbank Credit Management REST API"
 spec:
   type: openapi
   lifecycle: experimental
   owner: user:${{values.owner}}
+  system: neuralbank
   definition: |
     openapi: 3.0.0
     info:
       title: Neuralbank Credit API
       version: 1.0.0
+      description: >
+        REST API for credit and customer management.
+        Protected by Kuadrant OIDCPolicy (Keycloak OIDC) and
+        RateLimitPolicy (60 req/min per user).
     paths:
       /api/customers:
         get:
-          summary: Listar clientes
+          summary: List customers
       /api/credits:
         get:
-          summary: Listar créditos
+          summary: List credits
       /api/credits/{id}/update:
         post:
-          summary: Actualizar estado de crédito
+          summary: Update credit status

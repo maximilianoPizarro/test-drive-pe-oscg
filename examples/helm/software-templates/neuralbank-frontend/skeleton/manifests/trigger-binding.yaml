@@ -1,0 +1,13 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: ${{values.name}}-binding
+  namespace: ${{values.namespace}}
+  labels:
+    backstage.io/kubernetes-id: ${{values.name}}
+spec:
+  params:
+    - name: git-url
+      value: $(body.repository.clone_url)
+    - name: git-revision
+      value: $(body.after)

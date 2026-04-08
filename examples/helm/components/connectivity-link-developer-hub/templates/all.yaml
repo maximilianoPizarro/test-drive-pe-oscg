@@ -292,6 +292,13 @@ data:
           target: https://github.com/maximilianoPizarro/field-sourced-content-template/blob/main/examples/helm/software-templates/templates-catalog.yaml
       rules:
         - allow: [Component, Group, User, Resource, Location, Template, API, APIProduct, System, Domain]
+    proxy:
+      endpoints:
+        '/gitea':
+          target: "https://gitea-gitea.{{ .Values.clusterDomain }}/api/v1"
+          allowedMethods: ['GET', 'POST', 'PUT', 'DELETE']
+          headers:
+            Authorization: "Basic Z2l0ZWFfYWRtaW46b3BlbnNoaWZ0"
     argocd:
       appLocatorMethods:
         - type: 'config'
@@ -378,6 +385,8 @@ data:
                       if:
                         allOf:
                           - isTektonCIAvailable
+        disabled: false
+      - package: ./dynamic-plugins/dist/backstage-community-plugin-topology
         disabled: false
       - package: "@kuadrant/kuadrant-backstage-plugin-backend-dynamic@v0.1.0"
         disabled: false

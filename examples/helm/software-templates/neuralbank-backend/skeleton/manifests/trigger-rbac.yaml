@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ${{values.name}}-trigger-sa
+  namespace: ${{values.namespace}}
+  labels:
+    backstage.io/kubernetes-id: ${{values.name}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ${{values.name}}-trigger-binding
+  namespace: ${{values.namespace}}
+  labels:
+    backstage.io/kubernetes-id: ${{values.name}}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tekton-triggers-eventlistener-roles
+subjects:
+  - kind: ServiceAccount
+    name: ${{values.name}}-trigger-sa
+    namespace: ${{values.namespace}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ${{values.name}}-trigger-clusterbinding
+  labels:
+    backstage.io/kubernetes-id: ${{values.name}}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tekton-triggers-eventlistener-clusterroles
+subjects:
+  - kind: ServiceAccount
+    name: ${{values.name}}-trigger-sa
+    namespace: ${{values.namespace}}
