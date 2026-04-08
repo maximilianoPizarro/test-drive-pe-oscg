@@ -201,7 +201,6 @@ All services use the cluster domain pattern `apps.<cluster-domain>`:
 | **ArgoCD** | `https://openshift-gitops-server-openshift-gitops.apps.<domain>` |
 | **DevSpaces** | `https://devspaces.apps.<domain>` |
 | **Showroom** | `https://showroom.apps.<domain>` |
-| **n8n** | `https://n8n.apps.<domain>` |
 | **Registration Portal** | `https://workshop-registration.apps.<domain>` |
 | **Lightspeed** | Available from OpenShift Console |
 
