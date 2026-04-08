@@ -22,7 +22,7 @@
     transition: all 0.2s;
   }
   #lang-bar .lang-btn.active {
-    background: #EE0000;
+    background: #0066CC;
     color: #fff;
   }
   #lang-bar .lang-btn:not(.active) {
@@ -97,6 +97,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     setTimeout(loadGoogleTranslate, 500);
   }
+
+  // Remove "This site uses Just the Docs" text
+  document.querySelectorAll('.site-footer p').forEach(function(p) {
+    if (p.textContent.indexOf('Just the Docs') !== -1) {
+      p.remove();
+    }
+  });
 
   // Copy buttons on code blocks
   document.querySelectorAll('div.highlighter-rouge, figure.highlight').forEach(function(block) {

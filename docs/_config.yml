@@ -7,13 +7,15 @@ color_scheme: custom
 logo: "/field-sourced-content-template/assets/images/openshift-commons-logo.svg"
 
 aux_links:
+  "Red Hat Developers":
+    - "https://developers.redhat.com"
   "OpenShift Commons":
     - "https://commons.openshift.org"
   "GitHub":
     - "https://github.com/maximilianoPizarro/field-sourced-content-template"
 aux_links_new_tab: true
 
-footer_content: '<a href="https://commons.openshift.org"><img src="/field-sourced-content-template/assets/images/openshift-commons-logo.svg" alt="OpenShift Commons" style="height:24px;vertical-align:middle;margin-right:8px;filter:brightness(10);"></a> Created by <a href="https://github.com/maximilianoPizarro">maximilianoPizarro</a> — Powered by <a href="https://commons.openshift.org">OpenShift Commons</a> &amp; <a href="https://developers.redhat.com/rhdh">Red Hat Developer Hub</a>'
+footer_content: 'Created by <a href="https://github.com/maximilianoPizarro">maximilianoPizarro</a> · Powered by <a href="https://developers.redhat.com/rhdh">Red Hat Developer Hub</a> &amp; <a href="https://commons.openshift.org">OpenShift Commons</a>'
 
 mermaid:
   version: "10.9.0"

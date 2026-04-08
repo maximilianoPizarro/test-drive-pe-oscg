@@ -1,40 +1,78 @@
-// Red Hat / OpenShift Commons color scheme
+// Red Hat Developer Hub — refined palette
+// Uses dark charcoal tones with Red Hat red as accent, not primary
 
-// Primary colors
-$link-color: #EE0000;
-$btn-primary-color: #EE0000;
-$body-heading-color: #151515;
-$sidebar-color: #1a1a1a;
+$body-background-color: #ffffff;
+$body-text-color: #333333;
+$body-heading-color: #1a1a1a;
 
-// Wider content area
+$link-color: #0066CC;
+$btn-primary-color: #0066CC;
+
+$sidebar-color: #f5f5f5;
+
 $content-width: 1100px;
 $nav-width: 264px;
 
-// Code block styling
-$code-background-color: #1e1e1e;
-$feedback-color: darken($link-color, 3%);
+$code-background-color: #f4f4f4;
 
-// Override the "Built with Just the Docs" footer
-.site-footer {
-  border-top: 2px solid #EE0000;
-  padding-top: 1rem;
-
-  .site-footer-custom-content {
-    font-size: 0.85rem !important;
-  }
+// ── Header / top navigation ────────────────────────────
+.site-header {
+  background: #151515 !important;
+  border-bottom: 3px solid #CC0000;
 }
 
-// Hide the default "Built with..." text
-.site-footer > p:last-child {
-  display: none !important;
+.site-title {
+  color: #ffffff !important;
+  font-weight: 600;
 }
 
-// Navigation active item
+// Softer nav active indicator
 .nav-list .nav-list-item .nav-list-link.active {
-  border-left-color: #EE0000;
+  border-left-color: #CC0000;
+  font-weight: 700;
+  color: #151515;
 }
 
-// Code copy button
+// ── Footer ─────────────────────────────────────────────
+.site-footer {
+  border-top: 2px solid #CC0000;
+  padding-top: 1rem;
+  background: #fafafa;
+}
+
+.site-footer .site-footer-custom-content {
+  font-size: 0.85rem !important;
+}
+
+// Kill the default "This site uses Just the Docs" paragraph(s)
+.site-footer p,
+.site-footer > p,
+.site-footer p.text-small,
+.site-footer .text-small.text-grey-dk-000,
+p.text-small.text-grey-dk-000 {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+// But keep the custom footer content visible
+.site-footer .site-footer-custom-content,
+.site-footer .site-footer-custom-content * {
+  display: inline !important;
+  visibility: visible !important;
+  height: auto !important;
+}
+
+// ── Aux links (top-right header links) ─────────────────
+.aux-nav .aux-nav-list-item a {
+  color: #ccc !important;
+  &:hover { color: #fff !important; }
+}
+
+// ── Code copy button ───────────────────────────────────
 .copy-code-button {
   position: absolute;
   top: 6px;
@@ -51,22 +89,19 @@ $feedback-color: darken($link-color, 3%);
   z-index: 2;
 
   &:hover {
-    background: #EE0000;
+    background: #0066CC;
     color: #fff;
-    border-color: #EE0000;
+    border-color: #0066CC;
   }
 }
 
 div.highlighter-rouge,
 figure.highlight {
   position: relative;
-
-  &:hover .copy-code-button {
-    opacity: 1;
-  }
+  &:hover .copy-code-button { opacity: 1; }
 }
 
-// Mermaid diagram styling
+// ── Mermaid diagrams ───────────────────────────────────
 .language-mermaid {
   background: transparent !important;
   border: none !important;
@@ -78,18 +113,19 @@ pre.mermaid {
   text-align: center;
 }
 
-// Red Hat header logo
+// ── Logo ───────────────────────────────────────────────
 .site-logo {
-  max-height: 36px;
+  max-height: 32px;
+  filter: brightness(10);
 }
 
-// Table styling
+// ── Tables ─────────────────────────────────────────────
 th {
-  background-color: #151515;
+  background-color: #1a1a1a;
   color: #fff;
 }
 
-// Blockquote styling (notes/warnings)
+// ── Blockquotes ────────────────────────────────────────
 blockquote {
   border-left: 4px solid #0066CC;
   background: #f0f5ff;
@@ -98,4 +134,9 @@ blockquote {
   strong:first-child {
     color: #0066CC;
   }
+}
+
+// ── Language selector bar offset ───────────────────────
+#lang-bar {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
