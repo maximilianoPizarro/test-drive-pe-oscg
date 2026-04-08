@@ -1,0 +1,70 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: neuralbank-customer-service-mcp
+  title: "Neuralbank: Customer Service MCP"
+  description: "Crea un servidor MCP (Model Context Protocol) con Quarkus para el servicio de atención al cliente de Neuralbank. Incluye tools para consulta de crédito, información de clientes y actualización de estado. Genera Gateway, OIDCPolicy y RateLimitPolicy automáticamente."
+  tags:
+    - java
+    - quarkus
+    - mcp
+    - neuralbank
+    - recommended
+spec:
+  owner: platform-engineering
+  type: service
+  parameters:
+    - title: Información de la Aplicación
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          title: Nombre de la Aplicación
+          type: string
+          description: Nombre único para el servicio MCP (ej. customer-service-mcp)
+          default: customer-service-mcp
+          pattern: "^[a-z0-9-]+$"
+          ui:autofocus: true
+        description:
+          title: Descripción
+          type: string
+          default: "Servidor MCP de servicio al cliente para Neuralbank"
+        owner:
+          title: Usuario
+          type: string
+          description: "Tu usuario (ej: user1)"
+          pattern: "^user[0-9]+$"
+  steps:
+    - id: fetch-skeleton
+      name: Generar Skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          description: ${{ parameters.description }}
+          namespace: "${{ parameters.owner }}-devspaces"
+          imageRegistry: "image-registry.openshift-image-registry.svc:5000"
+    - id: publish
+      name: Publicar en Gitea
+      action: publish:gitea
+      input:
+        repoUrl: "gitea.gitea.svc.cluster.local:3000?owner=${{ parameters.owner }}&repo=${{ parameters.name }}"
+        description: ${{ parameters.description }}
+        defaultBranch: main
+        repoVisibility: public
+    - id: register
+      name: Registrar en Catálogo
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+  output:
+    links:
+      - title: Repositorio
+        url: ${{ steps['publish'].output.remoteUrl }}
+      - title: Ver en Catálogo
+        icon: catalog
+        entityRef: ${{ steps['register'].output.entityRef }}

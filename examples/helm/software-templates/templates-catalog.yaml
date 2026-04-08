@@ -5,6 +5,6 @@ metadata:
   description: Software Templates for Developer Hub
 spec:
   targets:
-    - ./quarkus-mcp/template.yaml
-    - ./static-frontend/template.yaml
-    - ./api-gateway/template.yaml
+    - ./customer-service-mcp/template.yaml
+    - ./neuralbank-backend/template.yaml
+    - ./neuralbank-frontend/template.yaml

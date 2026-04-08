@@ -1,0 +1,20 @@
+apiVersion: extensions.kuadrant.io/v1alpha1
+kind: OIDCPolicy
+metadata:
+  name: ${{values.name}}-oidc
+  namespace: ${{values.namespace}}
+  labels:
+    app.kubernetes.io/name: ${{values.name}}
+    backstage.io/kubernetes-id: ${{values.name}}
+spec:
+  auth:
+    tokenSource:
+      authorizationHeader:
+        prefix: Bearer
+  provider:
+    clientID: backstage
+    issuerURL: https://rhbk.apps.cluster-k6jxj.dynamic.redhatworkshops.io/realms/backstage
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: ${{values.name}}-route

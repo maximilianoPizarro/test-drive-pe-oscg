@@ -1,0 +1,20 @@
+apiVersion: kuadrant.io/v1
+kind: RateLimitPolicy
+metadata:
+  name: ${{values.name}}-ratelimit
+  namespace: ${{values.namespace}}
+  labels:
+    app.kubernetes.io/name: ${{values.name}}
+    backstage.io/kubernetes-id: ${{values.name}}
+spec:
+  limits:
+    api-per-user:
+      counters:
+        - expression: auth.identity.username
+      rates:
+        - limit: 60
+          window: 1min
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: ${{values.name}}-route

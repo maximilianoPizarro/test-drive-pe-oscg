@@ -1,0 +1,68 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: neuralbank-frontend
+  title: "Neuralbank: Frontend"
+  description: "Crea el frontend de Neuralbank para visualización y gestión de créditos. Tema OpenShift Commons. Incluye pipeline Tekton y soporte DevSpaces."
+  tags:
+    - frontend
+    - html
+    - neuralbank
+    - recommended
+spec:
+  owner: platform-engineering
+  type: website
+  parameters:
+    - title: Información de la Aplicación
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          title: Nombre de la Aplicación
+          type: string
+          default: neuralbank-frontend
+          pattern: "^[a-z0-9-]+$"
+          ui:autofocus: true
+        description:
+          title: Descripción
+          type: string
+          default: "Frontend de visualización de créditos para Neuralbank"
+        owner:
+          title: Usuario
+          type: string
+          description: "Tu usuario (ej: user1)"
+          pattern: "^user[0-9]+$"
+  steps:
+    - id: fetch-skeleton
+      name: Generar Skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          description: ${{ parameters.description }}
+          namespace: "${{ parameters.owner }}-devspaces"
+          imageRegistry: "image-registry.openshift-image-registry.svc:5000"
+    - id: publish
+      name: Publicar en Gitea
+      action: publish:gitea
+      input:
+        repoUrl: "gitea.gitea.svc.cluster.local:3000?owner=${{ parameters.owner }}&repo=${{ parameters.name }}"
+        description: ${{ parameters.description }}
+        defaultBranch: main
+        repoVisibility: public
+    - id: register
+      name: Registrar en Catálogo
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+  output:
+    links:
+      - title: Repositorio
+        url: ${{ steps['publish'].output.remoteUrl }}
+      - title: Ver en Catálogo
+        icon: catalog
+        entityRef: ${{ steps['register'].output.entityRef }}

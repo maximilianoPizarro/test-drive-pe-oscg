@@ -198,4 +198,16 @@ spec:
                 cat /tmp/org_resp >&2 || true
                 exit 1
               fi
+              echo "Creating 30 users..."
+              for i in $(seq 1 30); do
+                U_JSON=$(printf '{"username":"user%d","password":"Welcome123!","email":"user%d@developer-hub.local","must_change_password":false,"send_notify":false}' "$i" "$i")
+                C=$(curl -sS -o /dev/null -w "%{http_code}" -X POST "$BASE/api/v1/admin/users" \
+                  -u "${ADMIN_USER}:${ADMIN_PASS}" \
+                  -H "Content-Type: application/json" \
+                  -d "$U_JSON" || true)
+                echo "user$i: $C"
+                curl -sS -o /dev/null -w "" -X PUT "$BASE/api/v1/orgs/developer-hub/members/user$i" \
+                  -u "${ADMIN_USER}:${ADMIN_PASS}" || true
+              done
+              echo "All users created."
   backoffLimit: 3

@@ -1,0 +1,46 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{values.name}}
+  description: ${{values.description}}
+  annotations:
+    backstage.io/kubernetes-id: ${{values.name}}
+    backstage.io/kubernetes-namespace: ${{values.namespace}}
+    argocd/app-name: ${{values.name}}
+    tektonci/build-namespace: ${{values.namespace}}
+  tags:
+    - java
+    - quarkus
+    - rest-api
+    - neuralbank
+spec:
+  type: service
+  lifecycle: experimental
+  owner: user:${{values.owner}}
+  providesApis:
+    - ${{values.name}}-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: ${{values.name}}-api
+  description: "API REST de gestión de créditos"
+spec:
+  type: openapi
+  lifecycle: experimental
+  owner: user:${{values.owner}}
+  definition: |
+    openapi: 3.0.0
+    info:
+      title: Neuralbank Credit API
+      version: 1.0.0
+    paths:
+      /api/customers:
+        get:
+          summary: Listar clientes
+      /api/credits:
+        get:
+          summary: Listar créditos
+      /api/credits/{id}/update:
+        post:
+          summary: Actualizar estado de crédito
