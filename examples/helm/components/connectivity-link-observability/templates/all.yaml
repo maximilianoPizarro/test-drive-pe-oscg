@@ -1092,22 +1092,30 @@ data:
     NB_HOST="neuralbank.${DOMAIN}"
     NFL_HOST="nfl-wallet.${DOMAIN}"
     LM_HOST="litemaas.${DOMAIN}"
+    NFL_KEY="nfl-wallet-demo-key-2024"
 
     echo "=== Mesh Traffic Generator ==="
-    echo "Interval: ${INTERVAL:-5}s | Domain: ${DOMAIN}"
-
-    hit() { curl -sk -o /dev/null -w "%{http_code} $2\n" --connect-timeout 2 --max-time 4 -H "Host: $1" "$2"; }
+    echo "Interval: ${INTERVAL:-5}s"
 
     while true; do
-      hit "$NB_HOST" "http://neuralbank-gateway-istio.neuralbank-stack.svc:8080/q/health" &
-      hit "$NB_HOST" "http://neuralbank-gateway-istio.neuralbank-stack.svc:8080/api/v1/customers" &
-      hit "$NFL_HOST" "http://nfl-wallet-gateway-istio.nfl-wallet-prod.svc:8080/q/health" &
-      hit "$NFL_HOST" "http://nfl-wallet-gateway-istio.nfl-wallet-prod.svc:8080/api/v1/customers" &
-      hit "$LM_HOST" "http://litemaas-gateway-istio.litemaas.svc:8080/api/health" &
-      curl -sk -o /dev/null -w "%{http_code} neuralbank-backend-svc/q/health\n" \
-        --connect-timeout 2 --max-time 4 "http://neuralbank-backend-svc.neuralbank-stack.svc:8080/q/health" &
-      curl -sk -o /dev/null -w "%{http_code} nfl-wallet-api/q/health\n" \
-        --connect-timeout 2 --max-time 4 "http://nfl-wallet-api.nfl-wallet-prod.svc:8080/q/health" &
+      # Neuralbank via gateway (OIDC 302, L7 waypoint metrics)
+      curl -sk -o /dev/null -w "%{http_code} nb-gw/q/health\n" --connect-timeout 2 --max-time 4 \
+        -H "Host: $NB_HOST" "http://neuralbank-gateway-istio.neuralbank-stack.svc:8080/q/health" &
+      curl -sk -o /dev/null -w "%{http_code} nb-gw/api/v1/customers\n" --connect-timeout 2 --max-time 4 \
+        -H "Host: $NB_HOST" "http://neuralbank-gateway-istio.neuralbank-stack.svc:8080/api/v1/customers" &
+      # Neuralbank direct backend (200, L4 ztunnel metrics)
+      curl -sk -o /dev/null -w "%{http_code} nb-svc/q/health\n" --connect-timeout 2 --max-time 4 \
+        "http://neuralbank-backend-svc.neuralbank-stack.svc:8080/q/health" &
+      # NFL Wallet via gateway with API key (200, L7 waypoint metrics)
+      curl -sk -o /dev/null -w "%{http_code} nfl-gw/api/v1/customers\n" --connect-timeout 2 --max-time 4 \
+        -H "Host: $NFL_HOST" -H "X-API-Key: $NFL_KEY" \
+        "http://nfl-wallet-gateway-istio.nfl-wallet-prod.svc:8080/api/v1/customers" &
+      # NFL Wallet direct backend (200, L4 ztunnel metrics)
+      curl -sk -o /dev/null -w "%{http_code} nfl-svc/q/health\n" --connect-timeout 2 --max-time 4 \
+        "http://nfl-wallet-api.nfl-wallet-prod.svc:8080/q/health" &
+      # LiteMaaS via gateway (200, L7 waypoint metrics)
+      curl -sk -o /dev/null -w "%{http_code} lm-gw/\n" --connect-timeout 2 --max-time 4 \
+        -H "Host: $LM_HOST" "http://litemaas-gateway-istio.litemaas.svc:8080/" &
       wait
       sleep $(( ${INTERVAL:-5} + RANDOM % 3 ))
     done
