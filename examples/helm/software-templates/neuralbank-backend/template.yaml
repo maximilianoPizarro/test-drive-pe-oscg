@@ -74,7 +74,7 @@ spec:
       action: http:backstage:request
       input:
         method: POST
-        path: /api/notifications
+        path: /notifications
         headers:
           Content-Type: application/json
         body:
