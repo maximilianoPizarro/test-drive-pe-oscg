@@ -841,7 +841,6 @@ data:
       feedback_enabled: true
       feedback_storage: "/tmp/data/feedback"
       transcripts_storage: "/tmp/data/transcripts"
-      conversations_storage: "/tmp/data/conversations"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -974,9 +973,5 @@ spec:
                   - mountPath: /app-root/lightspeed-stack.yaml
                     name: lightspeed-stack
                     subPath: lightspeed-stack.yaml
-                  - mountPath: /tmp/data/feedback
-                    name: shared-storage
-                  - mountPath: /tmp/data/transcripts
-                    name: shared-storage
-                  - mountPath: /tmp/data/conversations
+                  - mountPath: /tmp/data
                     name: shared-storage
