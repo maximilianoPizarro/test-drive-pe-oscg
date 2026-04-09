@@ -23,9 +23,9 @@ spec:
       taskRef:
         resolver: hub
         params:
-          - name: catalog
-            value: tekton
           - name: type
+            value: artifact
+          - name: kind
             value: task
           - name: name
             value: git-clone
@@ -45,15 +45,17 @@ spec:
       taskRef:
         resolver: hub
         params:
-          - name: catalog
-            value: tekton
           - name: type
+            value: artifact
+          - name: kind
             value: task
           - name: name
             value: maven
           - name: version
             value: "0.3"
       params:
+        - name: MAVEN_IMAGE
+          value: maven:3.9-eclipse-temurin-17
         - name: GOALS
           value:
             - package
@@ -69,9 +71,9 @@ spec:
       taskRef:
         resolver: hub
         params:
-          - name: catalog
-            value: tekton
           - name: type
+            value: artifact
+          - name: kind
             value: task
           - name: name
             value: buildah
@@ -91,9 +93,9 @@ spec:
       taskRef:
         resolver: hub
         params:
-          - name: catalog
-            value: tekton
           - name: type
+            value: artifact
+          - name: kind
             value: task
           - name: name
             value: openshift-client

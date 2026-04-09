@@ -22,9 +22,9 @@ spec:
       taskRef:
         resolver: hub
         params:
-          - name: catalog
-            value: tekton
           - name: type
+            value: artifact
+          - name: kind
             value: task
           - name: name
             value: git-clone
@@ -44,9 +44,9 @@ spec:
       taskRef:
         resolver: hub
         params:
-          - name: catalog
-            value: tekton
           - name: type
+            value: artifact
+          - name: kind
             value: task
           - name: name
             value: buildah
@@ -64,9 +64,9 @@ spec:
       taskRef:
         resolver: hub
         params:
-          - name: catalog
-            value: tekton
           - name: type
+            value: artifact
+          - name: kind
             value: task
           - name: name
             value: openshift-client
