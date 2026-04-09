@@ -34,9 +34,18 @@ metadata:
     - url: https://grafana-observability.apps.cluster-l9nhj.dynamic.redhatworkshops.io
       title: Grafana UI
       icon: dashboard
+    - url: https://grafana-observability.apps.cluster-l9nhj.dynamic.redhatworkshops.io/d/service-mesh-overview?orgId=1
+      title: Service Mesh Dashboard
+      icon: dashboard
+    - url: https://grafana-observability.apps.cluster-l9nhj.dynamic.redhatworkshops.io/d/api-gateway-metrics?orgId=1
+      title: API Gateway Dashboard
+      icon: dashboard
     - url: https://thanos-querier.apps.cluster-l9nhj.dynamic.redhatworkshops.io
       title: Thanos Querier
       icon: search
+    - url: https://kiali-openshift-cluster-observability-operator.apps.cluster-l9nhj.dynamic.redhatworkshops.io
+      title: Kiali Console
+      icon: web
 spec:
   type: service
   lifecycle: production
@@ -55,6 +64,7 @@ metadata:
     backstage.io/kubernetes-namespace: openshift-cluster-observability-operator
     argocd/app-name: field-content-connectivity-link-kiali
     argocd/app-namespace: openshift-gitops
+    backstage.io/techdocs-ref: dir:.
   tags:
     - kiali
     - service-mesh
@@ -63,6 +73,9 @@ metadata:
     - url: https://kiali-openshift-cluster-observability-operator.apps.cluster-l9nhj.dynamic.redhatworkshops.io
       title: Kiali Console
       icon: web
+    - url: https://grafana-observability.apps.cluster-l9nhj.dynamic.redhatworkshops.io/d/service-mesh-overview?orgId=1
+      title: Service Mesh Dashboard
+      icon: dashboard
 spec:
   type: service
   lifecycle: production

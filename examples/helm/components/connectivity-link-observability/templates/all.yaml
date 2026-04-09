@@ -422,7 +422,7 @@ metadata:
   name: thanos-querier-connectivity-link
   namespace: openshift-cluster-observability-operator
 spec:
-  host: thanos-querier.apps.cluster-l9nhj.dynamic.redhatworkshops.io
+  host: thanos-querier.{{ .Values.clusterDomain | default "apps.cluster-l9nhj.dynamic.redhatworkshops.io" }}
   port:
     targetPort: 10902
   tls:
