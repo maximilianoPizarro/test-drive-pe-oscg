@@ -831,6 +831,16 @@ spec:
         template:
           spec:
             automountServiceAccountToken: true
+            volumes:
+              - name: dynamic-plugins-root
+                ephemeral:
+                  volumeClaimTemplate:
+                    spec:
+                      accessModes:
+                        - ReadWriteOnce
+                      resources:
+                        requests:
+                          storage: 4Gi
             containers:
               - name: backstage-backend
                 env:
