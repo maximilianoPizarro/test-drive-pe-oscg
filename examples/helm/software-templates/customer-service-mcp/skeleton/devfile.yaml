@@ -20,10 +20,27 @@ components:
     volume:
       size: 2Gi
 commands:
+  - id: init-maven
+    exec:
+      component: tools
+      commandLine: |
+        if ! mvn --version 2>/dev/null | grep -qE '3\.(8\.[6-9]|8\.[1-9][0-9]|9\.|[1-9][0-9])'; then
+          echo "Upgrading Maven..." &&
+          curl -sSL https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz | tar xz -C /home/user &&
+          echo 'export PATH=/home/user/apache-maven-3.9.9/bin:$PATH' >> /home/user/.bashrc &&
+          export PATH=/home/user/apache-maven-3.9.9/bin:$PATH &&
+          mvn --version;
+        else
+          echo "Maven version OK: $(mvn --version | head -1)";
+        fi
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: build
+        isDefault: false
   - id: build
     exec:
       component: tools
-      commandLine: mvn package -DskipTests
+      commandLine: export PATH=/home/user/apache-maven-3.9.9/bin:$PATH && mvn package -DskipTests
       workingDir: ${PROJECT_SOURCE}
       group:
         kind: build
@@ -31,7 +48,7 @@ commands:
   - id: run
     exec:
       component: tools
-      commandLine: mvn quarkus:dev
+      commandLine: export PATH=/home/user/apache-maven-3.9.9/bin:$PATH && mvn quarkus:dev
       workingDir: ${PROJECT_SOURCE}
       group:
         kind: run
