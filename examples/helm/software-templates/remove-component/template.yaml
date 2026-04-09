@@ -39,15 +39,6 @@ spec:
           pattern: "^user[0-9]+$"
           ui:help: "Auto-detected from your login. Change only if removing another user's component."
   steps:
-    - id: delete-gitea-repo
-      name: Delete Gitea Repository
-      action: http:backstage:request
-      input:
-        method: DELETE
-        path: "/api/proxy/gitea/repos/ws-${{ parameters.owner }}/${{ parameters.name }}"
-        headers:
-          Content-Type: application/json
-
     - id: unregister-catalog
       name: Unregister from Catalog
       action: catalog:unregister

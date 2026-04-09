@@ -114,6 +114,66 @@ spec:
               echo "Gitea API token stored successfully."
   backoffLimit: 3
 ---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: gitea-webhook-sync
+  namespace: openshift-gitops
+spec:
+  schedule: "*/2 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccountName: gitea-token-creator
+          containers:
+            - name: webhook-sync
+              image: curlimages/curl:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  GITEA="http://gitea-http.gitea.svc.cluster.local:3000"
+                  ADMIN_USER="gitea_admin"
+                  ADMIN_PASS="openshift"
+                  DOMAIN="{{ $.Values.clusterDomain }}"
+                  USER_COUNT={{ $.Values.userCount | default 200 }}
+
+                  for i in $(seq 1 $USER_COUNT); do
+                    USER="user${i}"
+                    ORG="ws-${USER}"
+                    NS="${USER}-neuralbank"
+
+                    REPOS=$(curl -sS -u "${ADMIN_USER}:${ADMIN_PASS}" \
+                      "${GITEA}/api/v1/orgs/${ORG}/repos?limit=50" 2>/dev/null \
+                      | grep -o '"name":"[^"]*"' | sed 's/"name":"//;s/"//' || true)
+
+                    for REPO in $REPOS; do
+                      HOOKS=$(curl -sS -u "${ADMIN_USER}:${ADMIN_PASS}" \
+                        "${GITEA}/api/v1/repos/${ORG}/${REPO}/hooks" 2>/dev/null || echo "[]")
+
+                      LISTENER_URL="https://el-${REPO}-listener-${NS}.${DOMAIN}"
+
+                      if echo "$HOOKS" | grep -q "$LISTENER_URL"; then
+                        continue
+                      fi
+
+                      echo "Creating webhook for ${ORG}/${REPO} → ${LISTENER_URL}"
+                      curl -sS -o /dev/null -X POST \
+                        "${GITEA}/api/v1/repos/${ORG}/${REPO}/hooks" \
+                        -u "${ADMIN_USER}:${ADMIN_PASS}" \
+                        -H "Content-Type: application/json" \
+                        -d "{\"type\":\"gitea\",\"config\":{\"url\":\"${LISTENER_URL}\",\"content_type\":\"json\"},\"events\":[\"push\"],\"active\":true}" || true
+                    done
+                  done
+                  echo "Webhook sync complete."
+      backoffLimit: 1
+---
 {{- $userCount := .Values.userCount | default 200 | int }}
 {{- range $i := until $userCount }}
 {{- $user := printf "user%d" (add1 $i) }}
