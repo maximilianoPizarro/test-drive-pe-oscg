@@ -69,7 +69,7 @@ oc get oidcpolicy neuralbank-oidc -n neuralbank-stack -o yaml
 
 Puntos clave de la configuración:
 
-- **`provider.issuerURL`**: apunta al realm de Keycloak (`https://rhbk.YOUR_CLUSTER_DOMAIN/realms/neuralbank`)
+- **`provider.issuerURL`**: apunta al realm de Keycloak (`https://rhbk.apps.cluster-l9nhj.dynamic.redhatworkshops.io/realms/neuralbank`)
 - **`provider.clientID`**: el cliente OIDC configurado en Keycloak (`backstage`)
 - **`auth.tokenSource`**: extrae el Bearer token del header `Authorization`
 - **`targetRef`**: apunta al HTTPRoute `neuralbank-api-route`
@@ -110,41 +110,109 @@ Configuración:
 - **60 requests por minuto** por usuario autenticado
 - El counter usa `auth.identity.username` para aislar el rate limit por usuario OIDC
 
-## Paso 5: Probar el flujo OIDC
+## Paso 5: Probar el flujo OIDC desde el navegador
 
 1. Abre la URL de Neuralbank en el navegador:
 
 ```
-https://neuralbank.YOUR_CLUSTER_DOMAIN
+https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io
 ```
 
 2. Serás redirigido automáticamente a la pantalla de login de Keycloak (realm `neuralbank`).
-3. Ingresa tus credenciales de workshop (`YOUR_USER` / `Welcome123!`).
+3. Ingresa tus credenciales de workshop (`user1` / `Welcome123!`).
 4. Tras la autenticación, serás redirigido de vuelta a la API.
 
-### Probar desde la terminal
+## Paso 6: Probar con curl — Obtener Bearer Token y consumir la API
 
-Sin token (debería recibir redirect 302):
+### 6.1 — Request sin token (redirect 302)
+
+Primero verificamos que la API rechaza requests sin autenticación:
 
 ```bash
-curl -v https://neuralbank.YOUR_CLUSTER_DOMAIN/api/customers 2>&1 | grep "< HTTP\|< location"
+curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
+  https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers
 ```
 
-Con token válido (obtener token de Keycloak):
+Resultado esperado: `HTTP Status: 302` (redirect a Keycloak login).
+
+### 6.2 — Obtener un Bearer Token de Keycloak
+
+Usa el flujo **Resource Owner Password Credentials** para obtener un JWT token:
 
 ```bash
 TOKEN=$(curl -s -X POST \
-  "https://rhbk.YOUR_CLUSTER_DOMAIN/realms/neuralbank/protocol/openid-connect/token" \
+  "https://rhbk.apps.cluster-l9nhj.dynamic.redhatworkshops.io/realms/neuralbank/protocol/openid-connect/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=password" \
   -d "client_id=neuralbank-frontend" \
-  -d "username=YOUR_USER" \
-  -d "password=Welcome123!" | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
+  -d "username=user1" \
+  -d "password=Welcome123!" \
+  | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
 
-curl -H "Authorization: Bearer $TOKEN" \
-  https://neuralbank.YOUR_CLUSTER_DOMAIN/api/customers
+echo "Token obtenido (primeros 50 chars): ${TOKEN:0:50}..."
 ```
 
-## Paso 6: Ver en Developer Hub
+### 6.3 — Listar todos los clientes
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers" \
+  | python3 -m json.tool
+```
+
+### 6.4 — Consultar un cliente por ID
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers/1" \
+  | python3 -m json.tool
+```
+
+### 6.5 — Consultar el resumen de un cliente
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers/1/summary" \
+  | python3 -m json.tool
+```
+
+### 6.6 — Consultar el credit score
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers/1/credit-score" \
+  | python3 -m json.tool
+```
+
+### 6.7 — Crear un nuevo cliente
+
+```bash
+curl -s -X POST \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Workshop",
+    "apellido": "Demo",
+    "email": "workshop.demo@neuralbank.io",
+    "tipoCliente": "PERSONAL",
+    "ciudad": "Buenos Aires",
+    "pais": "Argentina"
+  }' \
+  "https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers" \
+  | python3 -m json.tool
+```
+
+### 6.8 — Verificar que un token inválido es rechazado
+
+```bash
+curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
+  -H "Authorization: Bearer token-invalido-12345" \
+  "https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers"
+```
+
+Resultado esperado: `HTTP Status: 302` o `401` (token inválido rechazado).
+
+## Paso 7: Ver en Developer Hub
 
 1. Abre **Developer Hub** y navega al componente **neuralbank-stack** en el catálogo.
 2. En la pestaña **Topology**, observa los pods del backend conectados al Gateway.

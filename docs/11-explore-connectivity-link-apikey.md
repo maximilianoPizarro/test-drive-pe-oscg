@@ -73,12 +73,19 @@ oc get secret nfl-wallet-apikey-admin -n nfl-wallet-prod -o jsonpath='{.data.api
 
 Deberías ver: `nfl-wallet-demo-key-2024`
 
-## Paso 4: Probar la API con API Key
+## Paso 4: Probar la API con curl
 
-### Sin API Key (401 Unauthorized)
+### 4.1 — Sin API Key (401 Unauthorized)
 
 ```bash
-curl -s https://nfl-wallet.YOUR_CLUSTER_DOMAIN/api/v1/customers
+curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
+  https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers
+```
+
+Resultado esperado: `HTTP Status: 401`
+
+```bash
+curl -s https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers
 ```
 
 Respuesta esperada:
@@ -86,18 +93,64 @@ Respuesta esperada:
 {"error":"Invalid or missing API key. Include header X-API-Key with a valid key."}
 ```
 
-### Con API Key válida
+### 4.2 — Con API Key válida: Listar clientes
 
 ```bash
 curl -s -H "X-API-Key: nfl-wallet-demo-key-2024" \
-  https://nfl-wallet.YOUR_CLUSTER_DOMAIN/api/v1/customers | python3 -m json.tool
+  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers" \
+  | python3 -m json.tool
 ```
 
-### Con API Key readonly
+### 4.3 — Consultar un cliente por ID
+
+```bash
+curl -s -H "X-API-Key: nfl-wallet-demo-key-2024" \
+  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers/1" \
+  | python3 -m json.tool
+```
+
+### 4.4 — Consultar el credit score de un cliente
+
+```bash
+curl -s -H "X-API-Key: nfl-wallet-demo-key-2024" \
+  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers/1/credit-score" \
+  | python3 -m json.tool
+```
+
+### 4.5 — Crear un nuevo cliente
+
+```bash
+curl -s -X POST \
+  -H "X-API-Key: nfl-wallet-demo-key-2024" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "API Key",
+    "apellido": "Test",
+    "email": "apikey.test@wallet.io",
+    "tipoCliente": "EMPRESA",
+    "ciudad": "Miami",
+    "pais": "USA"
+  }' \
+  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers" \
+  | python3 -m json.tool
+```
+
+### 4.6 — Con API Key inválida (401)
+
+```bash
+curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" \
+  -H "X-API-Key: clave-invalida-12345" \
+  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers"
+```
+
+Resultado esperado: `HTTP Status: 401`
+
+### 4.7 — Con API Key readonly
 
 ```bash
 curl -s -H "X-API-Key: nfl-wallet-readonly-key-2024" \
-  https://nfl-wallet.YOUR_CLUSTER_DOMAIN/api/v1/customers | python3 -m json.tool
+  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers" \
+  | python3 -m json.tool
 ```
 
 ## Paso 5: Explorar el Rate Limiting
@@ -114,7 +167,7 @@ Prueba exceder el límite (en la terminal):
 for i in $(seq 1 130); do
   code=$(curl -s -o /dev/null -w '%{http_code}' \
     -H "X-API-Key: nfl-wallet-demo-key-2024" \
-    https://nfl-wallet.YOUR_CLUSTER_DOMAIN/api/v1/customers)
+    "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers")
   echo "Request $i: HTTP $code"
 done
 ```
@@ -126,11 +179,11 @@ Después de ~120 requests deberías empezar a ver respuestas `429 Too Many Reque
 Como ejercicio, crea tu propia API Key:
 
 ```bash
-oc create secret generic my-apikey-YOUR_USER \
+oc create secret generic my-apikey-user1 \
   --from-literal=api_key=my-custom-key-$(date +%s) \
   -n nfl-wallet-prod
 
-oc label secret my-apikey-YOUR_USER \
+oc label secret my-apikey-user1 \
   app=nfl-wallet \
   kuadrant.io/apikey=true \
   authorino.kuadrant.io/managed-by=authorino \
@@ -140,10 +193,11 @@ oc label secret my-apikey-YOUR_USER \
 Kuadrant detecta automáticamente el nuevo Secret. Prueba tu key:
 
 ```bash
-MY_KEY=$(oc get secret my-apikey-YOUR_USER -n nfl-wallet-prod -o jsonpath='{.data.api_key}' | base64 -d)
+MY_KEY=$(oc get secret my-apikey-user1 -n nfl-wallet-prod -o jsonpath='{.data.api_key}' | base64 -d)
 
 curl -s -H "X-API-Key: $MY_KEY" \
-  https://nfl-wallet.YOUR_CLUSTER_DOMAIN/api/v1/customers | python3 -m json.tool
+  "https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/api/v1/customers" \
+  | python3 -m json.tool
 ```
 
 ## Paso 7: Explorar el Swagger UI
@@ -151,7 +205,7 @@ curl -s -H "X-API-Key: $MY_KEY" \
 1. Abre en el navegador:
 
 ```
-https://nfl-wallet.YOUR_CLUSTER_DOMAIN/q/swagger-ui
+https://nfl-wallet.apps.cluster-l9nhj.dynamic.redhatworkshops.io/q/swagger-ui
 ```
 
 2. Haz click en **Authorize** (icono de candado).
