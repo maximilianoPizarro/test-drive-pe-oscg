@@ -22,7 +22,7 @@ graph LR
 ## Abrir el componente en Developer Hub
 
 1. Inicia sesión en **Developer Hub**.
-2. Busca **neuralbank-backend** en el **Catalog** y abre su página.
+2. Busca **YOUR_USER-neuralbank-backend** en el **Catalog** y abre su página.
 
 Si el taller habilita el enlace directo:
 
@@ -108,6 +108,14 @@ curl -sk "https://YOUR_ROUTE_HOST/api/your-modified-endpoint"
 
 Deberías ver reflejado el cambio (nuevo JSON, mensaje distinto, etc.).
 
+## Verificar el pipeline desde Developer Hub
+
+Además de verificar desde la consola de OpenShift, puedes seguir el pipeline directamente desde Developer Hub:
+
+1. Abre la ficha de **YOUR_USER-neuralbank-backend** en el catálogo.
+2. Selecciona la pestaña **CI** para ver el PipelineRun disparado por tu push.
+3. Verifica que todas las tareas finalizan en **Succeeded**.
+
 ## Cierre del flujo
 
-Has demostrado el ciclo completo **Dev Spaces → Git → Tekton → OpenShift**, alineado con **GitOps** y con la ficha del componente en **Developer Hub**. Este es el modelo de trabajo que las organizaciones buscan al adoptar Developer Hub: el desarrollador permanece en un entorno coherente mientras la plataforma aplica estándares y automatización.
+Has demostrado el ciclo completo **Dev Spaces → Git → Tekton → OpenShift**, alineado con **GitOps** y con la ficha del componente en **Developer Hub**. Pudiste seguir el pipeline tanto desde la consola de OpenShift como desde la pestaña **CI** del componente en Developer Hub. Este es el modelo de trabajo que las organizaciones buscan al adoptar Developer Hub: el desarrollador permanece en un entorno coherente mientras la plataforma aplica estándares y automatización.

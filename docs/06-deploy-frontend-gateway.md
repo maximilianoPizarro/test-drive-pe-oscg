@@ -25,7 +25,11 @@ Developer Hub -> Create -> "Neuralbank: Frontend"
 nombre: neuralbank-frontend
 owner: YOUR_USER
 → namespace: YOUR_USER-neuralbank
+→ componente en catálogo: YOUR_USER-neuralbank-frontend
+→ aplicación ArgoCD: YOUR_USER-neuralbank-frontend
 ```
+
+Al finalizar recibirás una **notificación** confirmando la creación del componente.
 
 > **Note:** Si el frontend espera una URL de API configurable, comprueba en el repo generado (Gitea) variables de entorno o `ConfigMap` que apunten al backend; ajústalas solo si el taller lo indica.
 
@@ -40,9 +44,11 @@ Developer Hub -> Create -> "Neuralbank: Customer Service MCP"
 nombre: customer-service-mcp
 owner: YOUR_USER
 → namespace: YOUR_USER-neuralbank
+→ componente en catálogo: YOUR_USER-customer-service-mcp
+→ aplicación ArgoCD: YOUR_USER-customer-service-mcp
 ```
 
-Esta plantilla no solo genera código: materializa el patrón de **connectivity link** con objetos como **Gateway**, **HTTPRoute**, **OIDCPolicy** y **RateLimitPolicy**, según la convención del repositorio de plantillas del workshop.
+Esta plantilla no solo genera código: materializa el patrón de **connectivity link** con objetos como **Gateway**, **HTTPRoute**, **OIDCPolicy** y **RateLimitPolicy**, según la convención del repositorio de plantillas del workshop. También recibirás una notificación al finalizar.
 
 ## Paso 3: Verificar repositorios en Gitea
 
@@ -56,7 +62,7 @@ Revisa que los **PipelineRuns** se hayan disparado o estén programados según l
 ## Paso 4: Comprobar aplicaciones en Argo CD
 
 1. Abre **Argo CD**.
-2. Localiza **Applications** para frontend y MCP (nombres ligados al repo o al proyecto **`YOUR_USER-neuralbank`**).
+2. Localiza las **Applications** `YOUR_USER-neuralbank-frontend` y `YOUR_USER-customer-service-mcp` (los nombres incluyen tu usuario como prefijo).
 3. Verifica **sync** y **health**; sincroniza manualmente si tu rol lo permite y el estado lo requiere.
 
 > **Note:** Los recursos de Gateway API y políticas pueden aparecer como objetos adicionales en el grafo de la aplicación MCP; si alguno está en estado degradado, revisa eventos en OpenShift y la configuración del operador (Kuadrant / Istio) del entorno.
@@ -65,9 +71,13 @@ Revisa que los **PipelineRuns** se hayan disparado o estén programados según l
 
 1. Entra en **Developer Hub -> Catalog**.
 2. Filtra por tu **owner** o busca por nombre.
-3. Deberías ver **tres** componentes: `neuralbank-backend`, `neuralbank-frontend` y `customer-service-mcp`.
+3. Deberías ver **tres** componentes: `YOUR_USER-neuralbank-backend`, `YOUR_USER-neuralbank-frontend` y `YOUR_USER-customer-service-mcp`.
 
-Abre cada ficha y comprueba enlaces al código, documentación y relaciones (por ejemplo dependencias hacia APIs).
+Abre cada ficha y comprueba:
+- Enlaces al código en Gitea.
+- Pestaña **CI** con los PipelineRuns de Tekton.
+- Relaciones entre componentes (frontend consume API del backend, MCP depende del backend).
+- El **System** compartido `YOUR_USER-neuralbank` que agrupa los tres componentes.
 
 ## Paso 6: Inspeccionar Gateway y HTTPRoute en OpenShift
 
@@ -89,4 +99,4 @@ Abre la **Route** o URL del frontend en el navegador. Comprueba que la interfaz 
 
 ## Resumen
 
-Has añadido **frontend** y **MCP** con plantillas, has verificado **GitOps** y **catálogo**, y has localizado **Gateway** y **HTTPRoute** que formalizan la conectividad segura del MCP. El siguiente módulo profundiza en **Argo CD**, entidades de **API** y políticas **Kuadrant**.
+Has añadido **frontend** y **MCP** con plantillas, has verificado **GitOps** y **catálogo** (cada componente con nombre único `YOUR_USER-name`), has localizado **Gateway** y **HTTPRoute** que formalizan la conectividad segura del MCP, y has recibido notificaciones por cada componente creado. El siguiente módulo profundiza en **Argo CD**, entidades de **API** y políticas **Kuadrant**.

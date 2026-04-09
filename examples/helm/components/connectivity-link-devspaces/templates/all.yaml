@@ -32,4 +32,10 @@ spec:
     storage:
       pvcStrategy: per-user
   gitServices: {}
-  networking: {}
+  networking:
+    {{- if .Values.clusterDomain }}
+    auth:
+      identityProviderURL: "https://rhbk.{{ .Values.clusterDomain }}/realms/backstage"
+      oAuthClientName: devspaces
+      oAuthSecret: devspaces-oidc-secret
+    {{- end }}

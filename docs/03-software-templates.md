@@ -41,11 +41,28 @@ Los **parámetros** suelen incluir:
 
 Los **pasos** frecuentes en ecosistemas GitOps son:
 
-- **`fetch:template`** (o equivalente): copia el `skeleton` y aplica sustituciones desde los parámetros.
+- **`fetch:template`** (o equivalente): copia el `skeleton` y aplica sustituciones desde los parámetros. En este workshop se genera un **nombre único** (`uniqueName`) con formato `owner-name` (e.g. `user1-neuralbank-backend`) para evitar colisiones entre usuarios.
 - **`publish:gitea`** / **`publish:github`** / similar: crea o actualiza el repositorio remoto con el contenido generado.
 - **`catalog:register`**: registra el componente (y a veces la API) en el Software Catalog para que aparezca en Developer Hub con enlaces y metadatos.
+- **Creación de ArgoCD Application** (`http:backstage:request`): crea la aplicación en ArgoCD vía API proxy con el nombre único del componente.
+- **Creación de Gitea Webhook** (`http:backstage:request`): configura un webhook para disparar pipelines Tekton ante cada push.
+- **Envío de notificación** (`http:backstage:request` a `/api/notifications`): notifica al owner sobre la creación exitosa del componente (in-app y por email).
 
-La nomenclatura exacta depende de los **scaffolder actions** instalados en tu instancia; lo importante es reconocer el patrón: *generar → publicar en Git → registrar*.
+La nomenclatura exacta depende de los **scaffolder actions** instalados en tu instancia; lo importante es reconocer el patrón: *generar → publicar en Git → registrar → desplegar → notificar*.
+
+## Naming convention multi-usuario
+
+En un entorno compartido con múltiples participantes, es fundamental evitar colisiones de nombres. Las plantillas de este workshop aplican un **prefijo con el username** a todos los recursos que requieren unicidad global:
+
+| Recurso | Nombre base | Nombre único |
+| --- | --- | --- |
+| Componente en catálogo | `neuralbank-backend` | `user1-neuralbank-backend` |
+| Aplicación ArgoCD | `neuralbank-backend` | `user1-neuralbank-backend` |
+| Entidad API | `neuralbank-backend-api` | `user1-neuralbank-backend-api` |
+| System | `neuralbank` | `user1-neuralbank` |
+| ClusterRoleBinding | `neuralbank-backend-trigger-clusterbinding` | `user1-neuralbank-backend-trigger-clusterbinding` |
+
+Los recursos **namespace-scoped** (Deployment, Service, Pipeline, etc.) mantienen el nombre base (`neuralbank-backend`) porque el namespace ya es único por usuario (`user1-neuralbank`).
 
 ## Plantillas Neuralbank disponibles en el workshop
 
@@ -67,8 +84,10 @@ graph LR
     TPL -->|"fetch:template"| SKEL["📁 Skeleton<br/>código + manifests"]
     SKEL -->|"publish:gitea"| REPO["📦 Repo en Gitea"]
     REPO -->|"catalog:register"| CAT["📒 Catálogo<br/>Developer Hub"]
-    REPO -->|"triggers"| PIPE["⚙️ Tekton Pipeline"]
-    REPO -->|"sync"| ARGO["🔄 Argo CD"]
+    REPO -->|"ArgoCD App"| ARGO["🔄 Argo CD"]
+    REPO -->|"Gitea webhook"| PIPE["⚙️ Tekton Pipeline"]
+    ARGO -->|"sync"| OCP["☸️ OpenShift"]
+    CAT -->|"notificación"| NOTIF["🔔 Notification<br/>in-app + email"]
 
     style DEV fill:#151515,color:#fff,stroke:#EE0000
     style TPL fill:#EE0000,color:#fff
@@ -77,6 +96,8 @@ graph LR
     style CAT fill:#0066CC,color:#fff
     style PIPE fill:#fd495c,color:#fff
     style ARGO fill:#ef7b4d,color:#fff
+    style OCP fill:#EE0000,color:#fff
+    style NOTIF fill:#4078c0,color:#fff
 ```
 
 ## ¿Qué genera cada plantilla?
@@ -85,11 +106,14 @@ En líneas generales, al ejecutar una plantilla Neuralbank obtendrás:
 
 - **Código** listo para compilar y extender (fuentes, `pom.xml` o equivalente, Dockerfile si aplica).
 - **Manifiestos** de despliegue en OpenShift (Deployment, Service, Route u objetos de enrutamiento según el caso).
-- **Definición de pipeline Tekton** alineada con el repo (para build de imagen y despliegue).
+- **Definición de pipeline Tekton** alineada con el repo (para build de imagen y despliegue), con la anotación `janus-idp.io/tekton` para visibilidad en la pestaña **CI** de Developer Hub.
 - **`devfile.yaml`** para abrir el proyecto en **Red Hat OpenShift Dev Spaces** con herramientas y comandos preconfigurados.
 - **Objetos de connectivity link** donde corresponda—en especial en el escenario **MCP**—: recursos como **Gateway**, **HTTPRoute**, **OIDCPolicy** y **RateLimitPolicy**, para exponer el servicio con autenticación OIDC y límites de tasa.
+- **Aplicación ArgoCD** creada automáticamente con nombre único (`owner-name`) y sincronización automática.
+- **Webhook en Gitea** configurado para disparar pipelines ante cada push.
+- **Notificación** al owner confirmando la creación exitosa del componente.
 
-Además, el **`catalog-info.yaml`** (u otro mecanismo de registro) permite que Developer Hub muestre el componente con **owner**, **system** y relaciones hacia APIs y dependencias.
+Además, el **`catalog-info.yaml`** permite que Developer Hub muestre el componente con **owner**, **system** y relaciones hacia APIs y dependencias, usando el nombre único con prefijo de usuario.
 
 ## Buenas prácticas al usar plantillas
 

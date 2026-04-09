@@ -239,6 +239,13 @@ litemaas:
   model: ""
 
 # ============================================================
+# User Scaling — single parameter controls all user provisioning
+# Keycloak users, DevSpaces namespaces, RBAC policy, workshop registration
+# Recommended: 30 (default), 50 (medium), 100 (large)
+# ============================================================
+userCount: 30
+
+# ============================================================
 # Workshop Registration Portal
 # ============================================================
 workshopRegistration:

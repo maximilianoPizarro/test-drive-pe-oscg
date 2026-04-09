@@ -1,87 +1,128 @@
 apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: neuralbank-system
+  namespace: default
+  description: "Neuralbank — plataforma financiera de demostración pre-desplegada en el clúster"
+  tags:
+    - neuralbank
+    - banking
+    - demo
+spec:
+  owner: platform-engineering
+  domain: banking
+
+---
+apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: neuralbank-stack
   namespace: default
-  description: NeuralBank demo application stack - Full-stack application with frontend, backend, database, and proxy
+  description: "Neuralbank Stack — aplicación full-stack pre-desplegada (backend + frontend + database)"
   annotations:
-    backstage.io/view-url: https://neuralbank.apps.cluster-l9nhj.dynamic.redhatworkshops.io
-    argocd/app-name: neuralbank-stack
+    backstage.io/kubernetes-id: neuralbank-stack
+    backstage.io/kubernetes-namespace: neuralbank-stack
+    argocd/app-name: field-content-connectivity-link-neuralbank-stack
     argocd/app-namespace: openshift-gitops
-    # ArgoCD URL - Update with your cluster domain
-    # Format: https://openshift-gitops-server-openshift-gitops.apps.<cluster-domain>/applications/neuralbank-stack
-    argocd/app-url: https://openshift-gitops-server-openshift-gitops.apps.cluster-l9nhj.dynamic.redhatworkshops.io/applications/neuralbank-stack
-    gitlab.com/project-slug: maximilianoPizarro/connectivity-link
+    backstage.io/view-url: https://neuralbank-frontend-svc-neuralbank-stack.{{ clusterDomain }}
+    backstage.io/techdocs-ref: dir:.
   tags:
     - neuralbank
-    - demo-app
     - full-stack
-    - postgresql
     - helm
-    - frontend
+    - postgresql
+    - quarkus
+  links:
+    - url: https://neuralbank-frontend-svc-neuralbank-stack.{{ clusterDomain }}
+      title: Frontend
+      icon: web
+    - url: https://neuralbank-backend-svc-neuralbank-stack.{{ clusterDomain }}/api/customers
+      title: Backend API
+      icon: api
+spec:
+  type: service
+  lifecycle: production
+  owner: platform-engineering
+  system: neuralbank-system
+  providesApis:
+    - neuralbank-api
+  subcomponentOf: null
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: neuralbank-stack-backend
+  namespace: default
+  description: "Neuralbank Backend — API REST Quarkus para gestión de créditos y clientes"
+  annotations:
+    backstage.io/kubernetes-id: neuralbank-stack
+    backstage.io/kubernetes-namespace: neuralbank-stack
+    backstage.io/kubernetes-label-selector: app=neuralbank-backend
+    argocd/app-name: field-content-connectivity-link-neuralbank-stack
+    argocd/app-namespace: openshift-gitops
+  tags:
+    - quarkus
+    - java
+    - rest-api
     - backend
 spec:
   type: service
   lifecycle: production
-  owner: maximilianopizarro
+  owner: platform-engineering
   system: neuralbank-system
   providesApis:
     - neuralbank-api
-  consumesApis:
-    - keycloak-api
   dependsOn:
-    - component:rhbk/keycloak
-    - component:rhcl-operator/gateway
-    - component:servicemeshoperator3/istio-gateway
+    - component:default/neuralbank-stack-database
 
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: neuralbank-backend
+  name: neuralbank-stack-frontend
   namespace: default
-  description: NeuralBank backend API service
+  description: "Neuralbank Frontend — SPA web para visualización de créditos con tema OpenShift Commons"
   annotations:
-    argocd/app-name: neuralbank-stack
+    backstage.io/kubernetes-id: neuralbank-stack
+    backstage.io/kubernetes-namespace: neuralbank-stack
+    backstage.io/kubernetes-label-selector: app=neuralbank-frontend
+    argocd/app-name: field-content-connectivity-link-neuralbank-stack
     argocd/app-namespace: openshift-gitops
-spec:
-  type: service
-  lifecycle: production
-  owner: maximilianopizarro
-  system: neuralbank-system
-  providesApis:
-    - neuralbank-api
-
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: neuralbank-frontend
-  namespace: default
-  description: NeuralBank frontend web application
-  annotations:
-    argocd/app-name: neuralbank-stack
-    argocd/app-namespace: openshift-gitops
+  tags:
+    - frontend
+    - html
+    - javascript
 spec:
   type: website
   lifecycle: production
-  owner: maximilianopizarro
+  owner: platform-engineering
   system: neuralbank-system
+  consumesApis:
+    - neuralbank-api
+  dependsOn:
+    - component:default/neuralbank-stack-backend
 
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: neuralbank-database
+  name: neuralbank-stack-database
   namespace: default
-  description: NeuralBank PostgreSQL database
+  description: "Neuralbank Database — PostgreSQL para persistencia de datos financieros"
   annotations:
-    argocd/app-name: neuralbank-stack
+    backstage.io/kubernetes-id: neuralbank-stack
+    backstage.io/kubernetes-namespace: neuralbank-stack
+    backstage.io/kubernetes-label-selector: app=neuralbank-db
+    argocd/app-name: field-content-connectivity-link-neuralbank-stack
     argocd/app-namespace: openshift-gitops
+  tags:
+    - postgresql
+    - database
 spec:
   type: database
   lifecycle: production
-  owner: maximilianopizarro
+  owner: platform-engineering
   system: neuralbank-system
 
 ---
@@ -90,32 +131,47 @@ kind: API
 metadata:
   name: neuralbank-api
   namespace: default
-  description: NeuralBank REST API
+  description: "Neuralbank REST API — endpoints para clientes, créditos y operaciones bancarias"
+  tags:
+    - rest
+    - openapi
 spec:
-  type: rest
+  type: openapi
   lifecycle: production
-  owner: maximilianopizarro
+  owner: platform-engineering
+  system: neuralbank-system
   definition: |
     openapi: "3.0.0"
     info:
-      title: NeuralBank API
+      title: Neuralbank API
+      description: API REST para gestión de créditos y clientes de Neuralbank
       version: "1.0.0"
+    servers:
+      - url: /api
     paths:
-      /api:
+      /api/customers:
         get:
-          summary: Get API data
-      /q:
+          summary: Listar clientes
+          description: Retorna la lista completa de clientes registrados
+          responses:
+            '200':
+              description: Lista de clientes
+      /api/credits:
         get:
-          summary: Query endpoint
-
----
-apiVersion: backstage.io/v1alpha1
-kind: System
-metadata:
-  name: neuralbank-system
-  namespace: default
-  description: NeuralBank application system
-spec:
-  owner: maximilianopizarro
-  domain: banking
-
+          summary: Listar créditos
+          description: Retorna todos los créditos activos
+          responses:
+            '200':
+              description: Lista de créditos
+      /api/credits/{id}/update:
+        put:
+          summary: Actualizar estado de crédito
+          parameters:
+            - name: id
+              in: path
+              required: true
+              schema:
+                type: integer
+          responses:
+            '200':
+              description: Crédito actualizado

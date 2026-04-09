@@ -4,9 +4,23 @@ title: "Explorar pipelines y Topology"
 nav_order: 6
 ---
 
-Tras desplegar **neuralbank-backend**, conviene inspeccionar cómo **Tekton** materializó el CI/CD y cómo **OpenShift** representa la aplicación en la vista de topología. Este módulo guía esa exploración y enlaza con el **Software Catalog** de Developer Hub.
+Tras desplegar **neuralbank-backend**, conviene inspeccionar cómo **Tekton** materializó el CI/CD y cómo **OpenShift** representa la aplicación en la vista de topología. Este módulo guía esa exploración desde **Developer Hub** (pestaña CI) y desde la consola de OpenShift, enlazando con el **Software Catalog**.
 
-## Abrir la consola de Pipelines
+## Ver pipelines desde Developer Hub (pestaña CI)
+
+La forma más directa de inspeccionar pipelines es desde el propio **Developer Hub**:
+
+1. Abre **Developer Hub** y localiza el componente **YOUR_USER-neuralbank-backend** en el catálogo.
+2. En la barra horizontal de navegación del componente, selecciona la pestaña **CI**.
+3. Verás los **PipelineRuns** asociados al componente, con estado, duración y enlace a los logs de cada tarea.
+
+Esta vista es posible gracias a la anotación `janus-idp.io/tekton` en el `catalog-info.yaml`, que vincula el componente del catálogo con los pipelines de Tekton en el namespace correspondiente.
+
+> **Note:** Si no ves la pestaña CI, verifica que el plugin `backstage-community-plugin-tekton` esté habilitado y que tu usuario tenga permisos `kubernetes.clusters.read` y `kubernetes.resources.read`.
+
+## Abrir la consola de Pipelines en OpenShift
+
+También puedes inspeccionar los pipelines directamente desde la consola de OpenShift:
 
 1. Inicia sesión en la **OpenShift Console**.
 2. Selecciona el proyecto **`YOUR_USER-neuralbank`**.
@@ -64,14 +78,23 @@ Desde el panel del componente en Topology o desde los menús dedicados:
 
 > **Note:** Si el taller añade **HorizontalPodAutoscaler** u otros operadores, pueden aparecer recursos adicionales enlazados al mismo Deployment.
 
-## Volver al Developer Hub
+## Correlacionar con Developer Hub
 
 1. Abre **Developer Hub**.
-2. Localiza el componente **neuralbank-backend** en el catálogo.
-3. Desde la ficha, comprueba enlaces a **source** (Gitea), documentación y cualquier anotación de **CI/CD** que exponga el plugin de pipelines o Git.
+2. Localiza el componente **YOUR_USER-neuralbank-backend** en el catálogo.
+3. Navega entre las pestañas disponibles en la barra horizontal:
 
-Así conectas la vista “infraestructura” (OpenShift/Tekton) con la vista “producto” (catálogo y ownership en el Hub).
+| Pestaña | Plugin | Qué muestra |
+| --- | --- | --- |
+| **Overview** | Core | Resumen del componente, links, owner, system |
+| **CI** | Tekton | PipelineRuns, estado de tareas, logs |
+| **CD** | ArgoCD | Sync status, health, historial de sincronización |
+| **Topology** | Topology | Vista gráfica de Deployments, Pods, Services |
+| **Kubernetes** | Kubernetes | Pods, events, estado detallado de recursos |
+| **API** | Core | Documentación OpenAPI si el componente expone una API |
+
+Así conectas la vista "infraestructura" (OpenShift/Tekton) con la vista "producto" (catálogo y ownership en el Hub).
 
 ## Resumen
 
-Has seguido un **PipelineRun** tarea a tarea, validado el estado del despliegue en **Topology** y relacionado el componente con su entrada en **Developer Hub**. Esto completa la visión operativa del backend Neuralbank antes de añadir frontend y MCP.
+Has seguido un **PipelineRun** tarea a tarea tanto desde la pestaña **CI** de Developer Hub como desde la consola de OpenShift, validado el estado del despliegue en **Topology** y relacionado el componente con su entrada en el catálogo. Esto completa la visión operativa del backend Neuralbank antes de añadir frontend y MCP.

@@ -410,6 +410,8 @@ data:
       locations:
         - type: url
           target: https://github.com/maximilianoPizarro/field-sourced-content-template/blob/main/examples/helm/software-templates/templates-catalog.yaml
+        - type: url
+          target: https://github.com/maximilianoPizarro/field-sourced-content-template/blob/main/examples/helm/components/connectivity-link-neuralbank-stack/catalog-info.yaml
       rules:
         - allow: [Component, Group, User, Resource, Location, Template, API, APIProduct, System, Domain]
     proxy:
@@ -746,8 +748,7 @@ data:
     platformadmin: full platform engineer permissions\ng, user:default/platformadmin,
     role:default/platformengineer\ng, user:default/platformadmin, role:default/api-admin\ng,
     user:default/platformadmin, role:default/api-owner\ng, user:default/platformadmin,
-    role:default/rhdhpai-users\ng, user:default/platformadmin, role:default/template-executers\ng,
-    user:default/user1, role:default/authenticated\ng, user:default/user2, role:default/authenticated\ng, user:default/user3, role:default/authenticated\ng, user:default/user4, role:default/authenticated\ng, user:default/user5, role:default/authenticated\ng, user:default/user6, role:default/authenticated\ng, user:default/user7, role:default/authenticated\ng, user:default/user8, role:default/authenticated\ng, user:default/user9, role:default/authenticated\ng, user:default/user10, role:default/authenticated\ng, user:default/user11, role:default/authenticated\ng, user:default/user12, role:default/authenticated\ng, user:default/user13, role:default/authenticated\ng, user:default/user14, role:default/authenticated\ng, user:default/user15, role:default/authenticated\ng, user:default/user16, role:default/authenticated\ng, user:default/user17, role:default/authenticated\ng, user:default/user18, role:default/authenticated\ng, user:default/user19, role:default/authenticated\ng, user:default/user20, role:default/authenticated\ng, user:default/user21, role:default/authenticated\ng, user:default/user22, role:default/authenticated\ng, user:default/user23, role:default/authenticated\ng, user:default/user24, role:default/authenticated\ng, user:default/user25, role:default/authenticated\ng, user:default/user26, role:default/authenticated\ng, user:default/user27, role:default/authenticated\ng, user:default/user28, role:default/authenticated\ng, user:default/user29, role:default/authenticated\ng, user:default/user30, role:default/authenticated\n\n#
+    role:default/rhdhpai-users\ng, user:default/platformadmin, role:default/template-executers\n{{ range $i := until (.Values.userCount | default 30 | int) }}g, user:default/user{{ add1 $i }}, role:default/authenticated\n{{ end }}\n#
     Group assignments (Keycloak groups)\n# Assign rhdh group to platformengineer role
     (has all permissions including Adoption Insights)\ng, group:default/rhdh, role:default/platformengineer\n\n#
     ==========================================================\n# 4. KUADRANT PLUGIN

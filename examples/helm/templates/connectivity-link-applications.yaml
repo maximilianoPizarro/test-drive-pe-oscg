@@ -103,7 +103,15 @@ spec:
     targetRevision: {{ $.Values.gitops.revision }}
     path: {{ $.Values.gitops.basePath }}/components/{{ .path }}
     {{- $domain := $.Values.deployer.domain | default "apps.cluster.example.com" }}
-    {{- if eq .path "connectivity-link-operators" }}
+    {{- if eq .path "connectivity-link-namespaces" }}
+    helm:
+      valuesObject:
+        userCount: {{ $.Values.userCount | default 30 }}
+    {{- else if eq .path "connectivity-link-devspaces" }}
+    helm:
+      valuesObject:
+        clusterDomain: {{ $domain }}
+    {{- else if eq .path "connectivity-link-operators" }}
     helm:
       valuesObject:
         channel: {{ $.Values.connectivityLink.operators.channel | quote }}
@@ -123,6 +131,7 @@ spec:
     helm:
       valuesObject:
         clusterDomain: {{ $domain }}
+        userCount: {{ $.Values.userCount | default 30 }}
     {{- else if eq .path "connectivity-link-mcp-gateway" }}
     helm:
       valuesObject:
@@ -135,6 +144,7 @@ spec:
     helm:
       valuesObject:
         clusterDomain: {{ $domain }}
+        userCount: {{ $.Values.userCount | default 30 }}
     {{- else if eq .path "connectivity-link-workshop-registration" }}
     helm:
       valuesObject:
@@ -142,7 +152,7 @@ spec:
           domain: {{ $domain }}
         registration:
           enabled: true
-          maxUsers: 30
+          maxUsers: {{ $.Values.userCount | default 30 }}
           adminToken: {{ $.Values.workshopRegistration.adminToken | default "workshop-admin-2024" | quote }}
         keycloak:
           url: {{ printf "https://rhbk.%s" $domain | quote }}

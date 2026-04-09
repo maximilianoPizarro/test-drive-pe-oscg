@@ -19,11 +19,13 @@ En este workshop aprenderás a utilizar **Red Hat Developer Hub** como portal de
 ### Qué vas a aprender
 
 - Comprender la propuesta de valor de Red Hat Developer Hub
-- Explorar la arquitectura: Developer Hub, ArgoCD, Tekton, DevSpaces, Gitea, Keycloak
-- Crear servicios backend y frontend usando **Software Templates**
-- Explorar pipelines automatizados, topology view y detalles de la aplicación
+- Explorar la arquitectura: Developer Hub, ArgoCD, Tekton, DevSpaces, Gitea, Keycloak, Lightspeed
+- Crear servicios backend y frontend usando **Software Templates** con naming convention multi-usuario
+- Explorar pipelines automatizados (pestaña **CI** en Developer Hub), topology view y detalles de la aplicación
 - Desplegar y configurar API Gateways con seguridad (OIDCPolicy, RateLimitPolicy)
 - Actualizar código fuente usando **Red Hat OpenShift Dev Spaces** con CI/CD automatizado
+- Utilizar **Red Hat Developer Lightspeed** como asistente de IA integrado en el portal
+- Recibir **notificaciones** en tiempo real y por email sobre el estado de tus componentes
 
 ### El caso de negocio: Neuralbank
 
@@ -37,7 +39,7 @@ Neuralbank es una entidad financiera que necesita modernizar su stack tecnológi
 
 Tu usuario es `YOUR_USER`. La contraseña es `Welcome123!`.
 
-Tu namespace de trabajo es **`YOUR_USER-neuralbank`**. Todos los servicios que crees con las Software Templates se desplegarán ahí.
+Tu namespace de trabajo es **`YOUR_USER-neuralbank`**. Todos los servicios que crees con las Software Templates se desplegarán ahí. Los componentes en el catálogo usan un **nombre único** con prefijo de tu usuario (por ejemplo `YOUR_USER-neuralbank-backend`) para evitar conflictos entre participantes.
 
 > **Note:** El atributo `YOUR_USER` se rellena automáticamente según tu inicio de sesión en OpenShift.
 
@@ -45,6 +47,7 @@ Tu namespace de trabajo es **`YOUR_USER-neuralbank`**. Todos los servicios que c
 - **Gitea**: `https://gitea-gitea.YOUR_CLUSTER_DOMAIN`
 - **ArgoCD**: `https://openshift-gitops-server-openshift-gitops.YOUR_CLUSTER_DOMAIN`
 - **DevSpaces**: `https://devspaces.YOUR_CLUSTER_DOMAIN`
+- **Lightspeed**: disponible en el menú lateral de Developer Hub (icono de chat IA)
 - **Terminal Web**: disponible en el panel derecho del showroom (tab "Terminal") para ejecutar comandos `oc`, `curl`, etc.
 
 ### Interfaces del entorno

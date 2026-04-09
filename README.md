@@ -83,20 +83,22 @@ All scaffolder steps use only actions registered in this RHDH instance:
 
 | Step | Scaffolder Action | Description |
 |------|-------------------|-------------|
-| 1 | `fetch:template` | Generates skeleton from template, injects user values (name, owner, namespace, clusterDomain) |
+| 1 | `fetch:template` | Generates skeleton from template, injects user values (name, owner, namespace, clusterDomain). Creates unique name `owner-name` to avoid multi-user conflicts |
 | 2 | `publish:gitea` | Pushes generated code to Gitea `ws-userN` organization (plugin: `backstage-plugin-scaffolder-backend-module-gitea`) |
-| 3 | `catalog:register` | Registers Component + API + System entities in the Backstage catalog |
-| 4 | `http:backstage:request` | Creates ArgoCD Application via K8s API proxy (`/api/proxy/k8s-api/`) |
+| 3 | `catalog:register` | Registers Component + API + System entities in the Backstage catalog with owner-prefixed unique names |
+| 4 | `http:backstage:request` | Creates ArgoCD Application via K8s API proxy (`/api/proxy/k8s-api/`) with unique name `owner-name` |
 | 5 | `http:backstage:request` | Creates Gitea webhook via Gitea API proxy (`/api/proxy/gitea/`) |
+| 6 | `http:backstage:request` | Sends notification to owner via `/api/notifications` (in-app + email via Mailpit) |
 
 ```
 User in Developer Hub
   → Selects Software Template (neuralbank-backend / frontend / customer-service-mcp)
-    → Step 1: fetch:template → generates skeleton with user values
+    → Step 1: fetch:template → generates skeleton with user values (uniqueName = owner-name)
     → Step 2: publish:gitea → pushes to Gitea ws-userN org
-    → Step 3: catalog:register → registers Component + API + System in catalog
-    → Step 4: http:backstage:request → POST K8s API → creates ArgoCD Application in openshift-gitops
+    → Step 3: catalog:register → registers Component + API + System in catalog (owner-prefixed)
+    → Step 4: http:backstage:request → POST K8s API → creates ArgoCD Application (owner-name)
     → Step 5: http:backstage:request → POST Gitea API → creates push webhook
+    → Step 6: http:backstage:request → POST /api/notifications → notifies owner (in-app + email)
     → ArgoCD auto-syncs manifests/ → Deploys to userN-neuralbank namespace:
         Deployment + Service
         Gateway (Istio/Gateway API)
@@ -122,6 +124,10 @@ User in Developer Hub
 | `roadiehq-backstage-plugin-argo-cd-backend-dynamic` | Built-in | ArgoCD status on entity pages |
 | `@kuadrant/kuadrant-backstage-plugin-backend-dynamic` | External | Kuadrant API Product provider |
 | `@kuadrant/kuadrant-backstage-plugin-frontend` | External | Kuadrant UI (API Products, API Keys) |
+| `backstage-plugin-notifications` | Built-in | In-app notifications system |
+| `backstage-plugin-notifications-backend-module-email-dynamic` | Built-in | Email notifications processor (SMTP/Mailpit) |
+| `red-hat-developer-hub-backstage-plugin-lightspeed` | OCI overlay | Red Hat Developer Lightspeed AI assistant (frontend) |
+| `red-hat-developer-hub-backstage-plugin-lightspeed-backend` | OCI overlay | Red Hat Developer Lightspeed AI assistant (backend) |
 
 ### Backstage Proxy Endpoints
 
@@ -132,26 +138,64 @@ User in Developer Hub
 
 **User sees in Developer Hub:**
 - Topology view (Deployments, Pods, Routes, Gateways)
-- Tekton CI tab (PipelineRuns, task logs)
-- ArgoCD tab (sync status, health)
+- Tekton CI tab (PipelineRuns, task logs) — via `janus-idp.io/tekton` annotation
+- ArgoCD CD tab (sync status, health)
 - Kubernetes tab (pods, events)
 - API documentation (OpenAPI)
 - Kuadrant API Product info (OIDCPolicy, RateLimitPolicy, API keys)
 - Component relationships (System graph: frontend → backend → MCP)
+- Notifications (in-app bell + email via Mailpit)
+- Lightspeed AI assistant (contextual help with RAG)
 
-## Cluster Sizing (30 users)
+## User Scaling
 
-### Resource Summary
+User count is controlled by a single parameter in `values.yaml`:
 
-| Layer | CPU (limits) | RAM (limits) | Disk |
-|-------|-------------|-------------|------|
-| OpenShift Platform | 14 vCPU | 34 Gi | 220 GB |
-| Infrastructure Services | 36 vCPU | 54 Gi | 135 GB |
-| 30 Users (apps + DevSpaces) | 105 vCPU | 135 Gi | 60 GB |
-| Container Images | — | — | 113 GB |
-| **Total** | **155 vCPU** | **223 Gi** | **528 GB** |
+```yaml
+userCount: 30  # Change to 50, 100, etc.
+```
 
-### Per-User Breakdown
+This parameter drives all user provisioning: Keycloak users, DevSpaces namespaces, RBAC policy assignments, and workshop registration seats — all via Helm `range` loops, eliminating hardcoded user blocks.
+
+### Pre-deployed Components (Neuralbank Stack)
+
+The `neuralbank-stack` namespace contains a pre-deployed demo application (backend + frontend + PostgreSQL) visible to all users via the Developer Hub catalog. Components are registered with `backstage.io/kubernetes-id` annotations for topology visualization.
+
+### Access Model: Developer Hub as Single Pane of Glass
+
+Users interact exclusively through **Developer Hub** — no OpenShift Console access required:
+
+| Capability | Where | How |
+|------------|-------|-----|
+| Deploy apps | Developer Hub → Create | Software Templates |
+| View topology | Developer Hub → Component → Topology tab | `backstage-community-plugin-topology` |
+| View pipelines | Developer Hub → Component → CI tab | `backstage-community-plugin-tekton` + `janus-idp.io/tekton` annotation |
+| View GitOps status | Developer Hub → Component → CD tab | `roadiehq-backstage-plugin-argo-cd-backend-dynamic` |
+| View pods/events | Developer Hub → Component → Kubernetes tab | `backstage-plugin-kubernetes-backend` |
+| Edit code | Developer Hub → Component → Open in Dev Spaces | DevSpaces with Keycloak OIDC auth |
+| AI assistance | Developer Hub → Lightspeed | `red-hat-developer-hub-backstage-plugin-lightspeed` |
+| API documentation | Developer Hub → API entity | OpenAPI definition |
+| Notifications | Developer Hub → Bell icon | In-app + email via Mailpit |
+
+### DevSpaces Authentication via Keycloak OIDC
+
+DevSpaces is configured to authenticate users via the same **Keycloak OIDC** provider used by Developer Hub, eliminating the need for OpenShift user accounts:
+
+```yaml
+# CheCluster spec.networking.auth
+auth:
+  identityProviderURL: "https://rhbk.<cluster-domain>/realms/backstage"
+  oAuthClientName: devspaces
+  oAuthSecret: devspaces-oidc-secret
+```
+
+A `devspaces` OIDC client is registered in the Keycloak `backstage` realm. DevSpaces auto-provisions `<username>-devspaces` namespaces using its operator ServiceAccount.
+
+**Result**: Users only need a Keycloak account (`user1`…`userN`) to access Developer Hub AND DevSpaces. No OpenShift User objects or manual RBAC required.
+
+### Cluster Sizing
+
+#### Per-User Resource Footprint
 
 | Component | CPU (limit) | RAM (limit) |
 |-----------|------------|------------|
@@ -162,13 +206,25 @@ User in Developer Hub
 | Istio sidecar gateways (×3) | 300m | 384 Mi |
 | **Total per user** | **3.5 vCPU** | **4.5 Gi** |
 
-### Recommended Configurations
+#### Infrastructure Overhead (fixed)
 
-| Profile | Workers | vCPU / Worker | RAM / Worker | Disk / Worker | Total Workers | Notes |
-|---------|---------|--------------|-------------|--------------|---------------|-------|
-| **Minimum** (15 active users) | 2 | 32 vCPU | 64 Gi | 500 GB | 64 vCPU / 128 Gi | ~50% DevSpaces concurrency |
-| **Recommended** (30 users) | 3 | 32 vCPU | 64 Gi | 300 GB | 96 vCPU / 192 Gi | All apps deployed, ~20 active DevSpaces |
-| **Full concurrency** (30 users) | 4 | 32 vCPU | 64 Gi | 500 GB | 128 vCPU / 256 Gi | All 30 DevSpaces + builds simultaneously |
+| Layer | CPU (limits) | RAM (limits) | Disk |
+|-------|-------------|-------------|------|
+| OpenShift Platform | 14 vCPU | 34 Gi | 220 GB |
+| Infrastructure Services | 36 vCPU | 54 Gi | 135 GB |
+| Container Images | — | — | 113 GB |
+| **Fixed total** | **50 vCPU** | **88 Gi** | **468 GB** |
+
+#### Scaling Profiles
+
+| Users | User Resources | Total (infra + users) | Recommended Workers |
+|-------|---------------|----------------------|-------------------|
+| **30** (default) | 105 vCPU / 135 Gi | 155 vCPU / 223 Gi | 3× m5.8xlarge (32 vCPU, 64 Gi) |
+| **50** | 175 vCPU / 225 Gi | 225 vCPU / 313 Gi | 4× m5.8xlarge |
+| **100** | 350 vCPU / 450 Gi | 400 vCPU / 538 Gi | 7× m5.8xlarge |
+| **100** (no DevSpaces) | 150 vCPU / 150 Gi | 200 vCPU / 238 Gi | 4× m5.8xlarge |
+
+> **Note**: Without DevSpaces (users only view topology/CI/CD in Developer Hub), per-user footprint drops to **1.5 vCPU / 1.5 Gi** — enabling 100 users on a 4-worker cluster.
 
 Control plane: 3 masters with 8 vCPU, 32 Gi RAM, 120 GB disk each (standard).
 
@@ -311,6 +367,7 @@ metadata:
 
 ## Documentation
 
+- [Workshop (GitHub Pages)](https://maximilianopizarro.github.io/field-sourced-content-template/) - Full workshop guide for OpenShift Commons
 - [examples/helm/README.md](examples/helm/README.md) - Helm deployment guide
 - [examples/ansible/README.md](examples/ansible/README.md) - Ansible deployment guide
 - [docs/ansible-developer-guide.md](docs/ansible-developer-guide.md) - In-depth Ansible patterns

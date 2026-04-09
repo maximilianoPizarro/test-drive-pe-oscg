@@ -11,7 +11,7 @@ Este módulo conecta la vista **GitOps** en Argo CD con el **Software Catalog** 
 1. Navega a la URL de **Argo CD** de tu entorno e inicia sesión (credenciales del taller o SSO según configuración).
 2. En la lista de **Applications**, filtra por proyecto o por prefijo de nombre usado en el workshop.
 
-Deberías ver aplicaciones correspondientes a **neuralbank-backend**, **neuralbank-frontend** y **customer-service-mcp** (los nombres exactos dependen de cómo la plantilla registró la Application).
+Deberías ver aplicaciones correspondientes a **YOUR_USER-neuralbank-backend**, **YOUR_USER-neuralbank-frontend** y **YOUR_USER-customer-service-mcp** (cada nombre incluye tu usuario como prefijo para evitar colisiones con otros participantes).
 
 ## Explorar el árbol de recursos
 
@@ -37,11 +37,11 @@ En la pestaña de **Events** o en la vista detallada, revisa mensajes recientes 
 
 ## Developer Hub: dependencias del componente
 
-1. Abre **Developer Hub** y entra en la ficha de **neuralbank-backend**.
+1. Abre **Developer Hub** y entra en la ficha de **YOUR_USER-neuralbank-backend**.
 2. Busca la sección de **dependencies** o diagrama de relaciones (según plugins instalados).
-3. Identifica vínculos hacia **APIs**, **systems** u otros **components** (frontend, MCP).
+3. Identifica vínculos hacia **APIs** (`YOUR_USER-neuralbank-backend-api`), **systems** (`YOUR_USER-neuralbank`) y otros **components** (frontend, MCP).
 
-Esta vista complementa Argo CD: Argo CD muestra *recursos*; el Hub muestra *intención de producto* y ownership.
+Esta vista complementa Argo CD: Argo CD muestra *recursos*; el Hub muestra *intención de producto* y ownership. También puedes revisar la pestaña **CD** del componente para ver el estado de ArgoCD sin salir de Developer Hub.
 
 ## Entidad API y OpenAPI
 
@@ -69,4 +69,4 @@ La ubicación en la UI depende de los CRD instalados; usa **Search** en la conso
 
 ## Resumen
 
-Has correlacionado el **estado GitOps** en Argo CD con las **fichas de catálogo** en Developer Hub, has localizado la **API** y su **OpenAPI**, y has situado las **políticas OIDC y de rate limit** en el contexto de Kuadrant. Esto cierra el circuito entre despliegue declarativo, documentación viva y seguridad perimetral.
+Has correlacionado el **estado GitOps** en Argo CD con las **fichas de catálogo** en Developer Hub (cada componente con nombre único `YOUR_USER-name`), has localizado la **API** y su **OpenAPI**, y has situado las **políticas OIDC y de rate limit** en el contexto de Kuadrant. Esto cierra el circuito entre despliegue declarativo, documentación viva y seguridad perimetral.

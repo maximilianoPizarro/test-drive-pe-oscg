@@ -32,16 +32,28 @@ Rellena los campos solicitados por la plantilla. Valores orientativos:
 name = neuralbank-backend
 owner = YOUR_USER
 → namespace resultante: YOUR_USER-neuralbank
+→ nombre único en catálogo: YOUR_USER-neuralbank-backend
+→ aplicación ArgoCD: YOUR_USER-neuralbank-backend
 ```
+
+El nombre del repositorio en Gitea sigue siendo `neuralbank-backend` (en la organización `ws-YOUR_USER`), pero el componente en el catálogo y la aplicación en ArgoCD usan el **nombre único** `YOUR_USER-neuralbank-backend` para evitar conflictos con otros participantes.
 
 > **Warning:** No uses espacios en el nombre del repositorio si la plantilla no lo permite. Respeta mayúsculas/minúsculas si el pipeline o Argo CD las esperan fijas.
 
 ## Paso 3: Crear y esperar el scaffolding
 
 1. Pulsa **Create** (o **Review** y luego **Create** si hay un paso de revisión).
-2. Permanece en la pantalla de progreso hasta que todos los pasos del *scaffolder* finalicen (publicación en Git, registro en catálogo, etc.).
+2. Permanece en la pantalla de progreso hasta que todos los pasos del *scaffolder* finalicen:
+   - **Generate Skeleton**: genera el código con los valores del formulario.
+   - **Publish to Gitea**: crea el repositorio en la organización `ws-YOUR_USER`.
+   - **Register in Catalog**: registra el componente con nombre `YOUR_USER-neuralbank-backend`.
+   - **Create ArgoCD Application**: crea la aplicación `YOUR_USER-neuralbank-backend` en ArgoCD.
+   - **Create Gitea Webhook**: configura el trigger para pipelines Tekton.
+   - **Send Notification**: envía una notificación al usuario confirmando el despliegue.
 
-> **Note:** Si un paso falla, copia el mensaje de error y revisa permisos en Gitea o cuotas de namespace; en entornos compartidos a veces hay conflictos de nombres si otro usuario ya creó `neuralbank-backend`.
+3. Al finalizar, recibirás una **notificación in-app** (campana de notificaciones en Developer Hub) y un **email** en tu casilla de Mailpit confirmando la creación exitosa.
+
+> **Note:** Gracias a la naming convention con prefijo de usuario, ya no hay conflictos de nombres si otro participante también crea `neuralbank-backend`; cada uno tiene su propio componente `YOUR_USER-neuralbank-backend`.
 
 ## Paso 4: Verificar el repositorio en Gitea
 
@@ -56,7 +68,7 @@ Gitea -> Repositorios -> neuralbank-backend -> comprobar estructura (src/, manif
 ## Paso 5: Verificar la aplicación en Argo CD
 
 1. Abre el dashboard de **Argo CD** del clúster.
-2. Busca una **Application** asociada al backend (nombre alineado con el componente o el namespace del workshop).
+2. Busca la **Application** `YOUR_USER-neuralbank-backend` (el nombre incluye tu usuario como prefijo).
 3. Comprueba **Sync Status** y **Health**; si está *OutOfSync*, ejecuta **Sync** si tu rol lo permite.
 
 > **Note:** El primer sync puede tardar mientras se crean namespaces, secretos o imágenes; refresca el árbol de recursos hasta ver Deployments y Services en verde.
@@ -92,9 +104,20 @@ Sustituye `YOUR_ROUTE_HOST` por el hostname que muestra la Route en OpenShift.
 ## Paso 8: Confirmar el registro en el catálogo
 
 1. Vuelve a **Developer Hub**.
-2. Busca el componente **neuralbank-backend** en el **Catalog**.
-3. Abre la ficha y revisa enlaces al repositorio, documentación y relaciones (por ejemplo entidad **API**).
+2. Busca el componente **YOUR_USER-neuralbank-backend** en el **Catalog** (usa el filtro por owner o busca por nombre).
+3. Abre la ficha y revisa:
+   - Enlaces al repositorio en Gitea.
+   - Pestaña **CI**: PipelineRuns de Tekton asociados al componente (gracias a la anotación `janus-idp.io/tekton`).
+   - Pestaña **Topology**: vista gráfica de los recursos desplegados.
+   - Pestaña **Kubernetes**: pods, events y estado del despliegue.
+   - Pestaña **CD**: estado de sincronización en ArgoCD.
+   - Relaciones con entidades **API** y **System** (`YOUR_USER-neuralbank`).
+
+## Paso 9: Revisar la notificación recibida
+
+1. Haz clic en el icono de **campana** (notificaciones) en la barra superior de Developer Hub.
+2. Deberías ver una notificación con el título "Neuralbank Backend deployed successfully" indicando el componente creado y el namespace de despliegue.
 
 ## Resumen
 
-Has recorrido el camino completo **Hub → plantilla → Gitea → Argo CD → Tekton → OpenShift**, validando además la API en `/api/customers` y `/api/credits`. Este flujo es la base para los módulos de pipelines, frontend y Dev Spaces.
+Has recorrido el camino completo **Hub → plantilla → Gitea → Argo CD → Tekton → OpenShift → Notificación**, validando además la API en `/api/customers` y `/api/credits`. Cada componente usa un nombre único con prefijo de usuario para evitar colisiones en el entorno compartido. Este flujo es la base para los módulos de pipelines, frontend y Dev Spaces.
