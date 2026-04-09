@@ -70,7 +70,7 @@ spec:
       action: http:backstage:request
       input:
         method: POST
-        path: /api/proxy/mailpit/api/v1/send
+        path: /proxy/mailpit/api/v1/send
         headers:
           Content-Type: application/json
         body:
