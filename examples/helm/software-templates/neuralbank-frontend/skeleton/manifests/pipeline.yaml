@@ -20,8 +20,16 @@ spec:
   tasks:
     - name: git-clone
       taskRef:
-        name: git-clone
-        kind: ClusterTask
+        resolver: hub
+        params:
+          - name: catalog
+            value: tekton
+          - name: type
+            value: task
+          - name: name
+            value: git-clone
+          - name: version
+            value: "0.9"
       params:
         - name: url
           value: $(params.git-url)
@@ -34,8 +42,16 @@ spec:
       runAfter:
         - git-clone
       taskRef:
-        name: buildah
-        kind: ClusterTask
+        resolver: hub
+        params:
+          - name: catalog
+            value: tekton
+          - name: type
+            value: task
+          - name: name
+            value: buildah
+          - name: version
+            value: "0.8"
       params:
         - name: IMAGE
           value: $(params.image-name)
@@ -46,8 +62,16 @@ spec:
       runAfter:
         - build-image
       taskRef:
-        name: openshift-client
-        kind: ClusterTask
+        resolver: hub
+        params:
+          - name: catalog
+            value: tekton
+          - name: type
+            value: task
+          - name: name
+            value: openshift-client
+          - name: version
+            value: "0.2"
       params:
         - name: SCRIPT
           value: |

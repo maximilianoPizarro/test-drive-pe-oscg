@@ -13,7 +13,7 @@ spec:
         - expression: auth.identity.username
       rates:
         - limit: 60
-          window: 1min
+          window: 1m
   targetRef:
     group: gateway.networking.k8s.io
     kind: HTTPRoute
