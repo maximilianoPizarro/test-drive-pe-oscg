@@ -147,15 +147,10 @@ metadata:
 spec:
   gatewayClassName: istio
   listeners:
-  - name: https
+  - name: http
     hostname: nfl-wallet.{{ .Values.clusterDomain }}
-    port: 443
-    protocol: HTTPS
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - name: nfl-wallet-tls
-        kind: Secret
+    port: 80
+    protocol: HTTP
     allowedRoutes:
       namespaces:
         from: Same
@@ -283,3 +278,23 @@ metadata:
 type: Opaque
 stringData:
   api_key: nfl-wallet-readonly-key-2024
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  name: nfl-wallet-route
+  namespace: nfl-wallet-prod
+  labels:
+    backstage.io/kubernetes-id: nfl-wallet
+spec:
+  host: nfl-wallet.{{ .Values.clusterDomain }}
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: nfl-wallet-api
+    weight: 100
