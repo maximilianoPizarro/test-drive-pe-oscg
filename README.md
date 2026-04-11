@@ -280,9 +280,11 @@ RHDP environments have memory quotas applied to the sandbox namespace. The total
 |-------|-------------|--------------|-----------|----------------------|
 | **100** | **4** | **128Gi** | **32** | 512Gi RAM / 128 vCPU |
 | **100** (conservative) | **5** | **64Gi** | **16** | 320Gi RAM / 80 vCPU |
-| **200** | **7** | **128Gi** | **32** | 896Gi RAM / 224 vCPU |
+| **200** | **6** | **128Gi** | **32** | 768Gi RAM / 192 vCPU |
 | **200** (conservative) | **8** | **64Gi** | **16** | 512Gi RAM / 128 vCPU |
 
+> **Important**: The maximum number of 128Gi workers that fit under the sandbox quota is **6** (not 7). Each worker VM's virt-launcher pod requests ~257Gi (128Gi guest + overhead), and the infrastructure base (3 control-plane nodes + bastion + system pods) consumes ~1,037Gi of the 2,000Gi quota. Requesting a 7th 128Gi worker will fail with `exceeded quota: sandbox-quota`.
+>
 > **Tip**: When in doubt, start with fewer large workers rather than many small ones, and verify quota availability before scaling up.
 
 ##### Sizing Rationale
