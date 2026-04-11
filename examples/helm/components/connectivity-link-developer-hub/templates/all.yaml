@@ -948,7 +948,7 @@ stringData:
   VALIDATION_PROVIDER: "vllm"
   VALIDATION_MODEL_NAME: "qwen3-8b"
 ---
-apiVersion: rhdh.redhat.com/v1alpha3
+apiVersion: rhdh.redhat.com/v1alpha5
 kind: Backstage
 metadata:
   annotations:

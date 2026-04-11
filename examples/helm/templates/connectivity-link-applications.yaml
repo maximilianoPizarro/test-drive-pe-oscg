@@ -59,6 +59,10 @@ spec:
       jsonPointers:
         - /metadata/annotations
         - /status
+      jqPathExpressions:
+        - .spec.parentRefs[]
+        - .spec.rules[].backendRefs[]
+        - .spec.rules[].matches[]
     - group: sailoperator.io
       kind: "*"
       jsonPointers:
