@@ -190,6 +190,26 @@ spec:
         {{- $_ := set $nb.api "baseUrl" $.Values.litemaas.apiUrl }}
         {{- end }}
         {{- toYaml $nb | nindent 8 }}
+    {{- else if eq .path "connectivity-link-kiali" }}
+    helm:
+      valuesObject:
+        clusterDomain: {{ $domain }}
+    {{- else if eq .path "connectivity-link-litemaas" }}
+    helm:
+      valuesObject:
+        clusterDomain: {{ $domain }}
+    {{- else if eq .path "connectivity-link-rhcl-operator" }}
+    helm:
+      valuesObject:
+        clusterDomain: {{ $domain }}
+    {{- else if eq .path "connectivity-link-opentelemetry" }}
+    helm:
+      valuesObject:
+        clusterDomain: {{ $domain }}
+    {{- else if eq .path "connectivity-link-observability" }}
+    helm:
+      valuesObject:
+        clusterDomain: {{ $domain }}
     {{- end }}
   destination:
     server: https://kubernetes.default.svc

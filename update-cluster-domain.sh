@@ -2,8 +2,12 @@
 # =============================================================================
 # update-cluster-domain.sh
 #
-# Updates the OpenShift cluster domain across ALL configuration files in this
-# repository. Run this when migrating to a new cluster.
+# Updates the OpenShift cluster domain in values.yaml (the single source of
+# truth) and in static files that cannot use Helm templating: documentation,
+# catalog-info.yaml, and Backstage software-template defaults.
+#
+# Helm templates are NOT touched — they derive the domain at render time from
+# deployer.domain via {{ .Values.clusterDomain }}.
 #
 # Usage:
 #   ./update-cluster-domain.sh <NEW_CLUSTER_DOMAIN>
@@ -12,15 +16,15 @@
 #   ./update-cluster-domain.sh apps.cluster-abc12.dynamic.redhatworkshops.io
 #
 # What it does:
-#   1. Scans all YAML/YML files for the old domain and replaces with the new one
-#   2. Updates the deployer.domain in the parent values.yaml
-#   3. Commits and pushes changes (optional)
-#   4. Prints a summary of files changed
+#   1. Updates deployer.domain in the parent values.yaml
+#   2. Replaces the old domain in static files (docs, catalog-info, software-
+#      template defaults) that cannot be Helm-templated
+#   3. Prints a summary of files changed
 #
 # After running this script:
 #   - Push changes to Git so ArgoCD syncs the new domain
+#   - ArgoCD propagates deployer.domain → clusterDomain to all components
 #   - The showroom uses __CLUSTER_DOMAIN__ placeholder (no changes needed)
-#   - Software template skeletons with OIDCPolicy issuerURL will be updated
 # =============================================================================
 
 set -euo pipefail
@@ -33,6 +37,7 @@ NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HELM_DIR="${SCRIPT_DIR}/examples/helm"
+DOCS_DIR="${SCRIPT_DIR}/docs"
 
 # --- Validate input ---
 if [ $# -lt 1 ]; then
@@ -58,17 +63,18 @@ if [[ ! "$NEW_DOMAIN" =~ ^apps\. ]]; then
     fi
 fi
 
-# --- Detect current domain ---
+# --- Detect current domain from static files ---
 echo -e "${CYAN}Detecting current cluster domain...${NC}"
 
 CURRENT_DOMAIN=$(grep -r -oh 'apps\.cluster-[a-z0-9]*\.dynamic\.redhatworkshops\.io' \
-    "${HELM_DIR}" --include="*.yaml" --include="*.yml" 2>/dev/null \
+    "${DOCS_DIR}" "${HELM_DIR}" \
+    --include="*.md" --include="*.yaml" --include="*.yml" 2>/dev/null \
     | sort | uniq -c | sort -rn | head -1 | awk '{print $2}')
 
 if [ -z "$CURRENT_DOMAIN" ]; then
-    echo -e "${YELLOW}No existing cluster domain found in YAML files.${NC}"
+    echo -e "${YELLOW}No existing cluster domain found in static files.${NC}"
     echo "  This may be a fresh clone. Setting domain for the first time."
-    CURRENT_DOMAIN="__PLACEHOLDER_DOMAIN__"
+    CURRENT_DOMAIN="apps.cluster.example.com"
 fi
 
 if [ "$CURRENT_DOMAIN" = "$NEW_DOMAIN" ]; then
@@ -80,41 +86,10 @@ echo -e "  Current: ${RED}${CURRENT_DOMAIN}${NC}"
 echo -e "  New:     ${GREEN}${NEW_DOMAIN}${NC}"
 echo ""
 
-# --- Count affected files ---
-echo -e "${CYAN}Scanning for files to update...${NC}"
-
-if [ "$CURRENT_DOMAIN" != "__PLACEHOLDER_DOMAIN__" ]; then
-    AFFECTED_FILES=$(grep -r -l "$CURRENT_DOMAIN" "${HELM_DIR}" \
-        --include="*.yaml" --include="*.yml" 2>/dev/null || true)
-else
-    AFFECTED_FILES=""
-fi
-
-if [ -z "$AFFECTED_FILES" ]; then
-    echo -e "${YELLOW}No files contain the current domain.${NC}"
-fi
-
-FILE_COUNT=$(echo "$AFFECTED_FILES" | grep -c . 2>/dev/null || echo "0")
-echo -e "  Found ${CYAN}${FILE_COUNT}${NC} files with domain references"
-echo ""
-
-# --- Perform replacement ---
-echo -e "${CYAN}Replacing domain in all files...${NC}"
+# --- Step 1: Update deployer.domain in parent values.yaml ---
+echo -e "${CYAN}Step 1: Updating deployer.domain in values.yaml...${NC}"
 
 CHANGED=0
-
-if [ "$CURRENT_DOMAIN" != "__PLACEHOLDER_DOMAIN__" ] && [ -n "$AFFECTED_FILES" ]; then
-    while IFS= read -r file; do
-        if [ -f "$file" ]; then
-            sed -i "s|${CURRENT_DOMAIN}|${NEW_DOMAIN}|g" "$file"
-            REL_PATH="${file#${SCRIPT_DIR}/}"
-            echo -e "  ${GREEN}✓${NC} ${REL_PATH}"
-            CHANGED=$((CHANGED + 1))
-        fi
-    done <<< "$AFFECTED_FILES"
-fi
-
-# --- Update deployer.domain in parent values.yaml ---
 PARENT_VALUES="${HELM_DIR}/values.yaml"
 if [ -f "$PARENT_VALUES" ]; then
     if grep -q 'domain: ""' "$PARENT_VALUES" 2>/dev/null; then
@@ -126,6 +101,63 @@ if [ -f "$PARENT_VALUES" ]; then
         echo -e "  ${GREEN}✓${NC} examples/helm/values.yaml (deployer.domain updated)"
         CHANGED=$((CHANGED + 1))
     fi
+fi
+echo ""
+
+# --- Step 2: Update static files (docs, catalog-info, software-template defaults) ---
+echo -e "${CYAN}Step 2: Updating static files (docs, catalog-info, software-templates)...${NC}"
+
+STATIC_FILES=""
+
+# Documentation (Markdown)
+if [ -d "$DOCS_DIR" ]; then
+    DOCS_MATCHES=$(grep -r -l "$CURRENT_DOMAIN" "${DOCS_DIR}" \
+        --include="*.md" 2>/dev/null || true)
+    if [ -n "$DOCS_MATCHES" ]; then
+        STATIC_FILES="${STATIC_FILES}${DOCS_MATCHES}"$'\n'
+    fi
+fi
+
+# Catalog-info.yaml and docs inside components
+CATALOG_MATCHES=$(grep -r -l "$CURRENT_DOMAIN" "${HELM_DIR}" \
+    --include="catalog-info.yaml" 2>/dev/null || true)
+if [ -n "$CATALOG_MATCHES" ]; then
+    STATIC_FILES="${STATIC_FILES}${CATALOG_MATCHES}"$'\n'
+fi
+
+# Component docs (Markdown under components/)
+COMPONENT_DOCS=$(grep -r -l "$CURRENT_DOMAIN" "${HELM_DIR}/components" \
+    --include="*.md" 2>/dev/null || true)
+if [ -n "$COMPONENT_DOCS" ]; then
+    STATIC_FILES="${STATIC_FILES}${COMPONENT_DOCS}"$'\n'
+fi
+
+# Software-template defaults
+TEMPLATE_MATCHES=$(grep -r -l "$CURRENT_DOMAIN" "${HELM_DIR}/software-templates" \
+    --include="*.yaml" --include="*.yml" 2>/dev/null || true)
+if [ -n "$TEMPLATE_MATCHES" ]; then
+    STATIC_FILES="${STATIC_FILES}${TEMPLATE_MATCHES}"$'\n'
+fi
+
+# README at repo root
+if [ -f "${SCRIPT_DIR}/README.md" ] && grep -q "$CURRENT_DOMAIN" "${SCRIPT_DIR}/README.md" 2>/dev/null; then
+    STATIC_FILES="${STATIC_FILES}${SCRIPT_DIR}/README.md"$'\n'
+fi
+
+# Deduplicate and process
+STATIC_FILES=$(echo "$STATIC_FILES" | sort -u | grep -v '^$' || true)
+
+if [ -n "$STATIC_FILES" ]; then
+    while IFS= read -r file; do
+        if [ -f "$file" ]; then
+            sed -i "s|${CURRENT_DOMAIN}|${NEW_DOMAIN}|g" "$file"
+            REL_PATH="${file#${SCRIPT_DIR}/}"
+            echo -e "  ${GREEN}✓${NC} ${REL_PATH}"
+            CHANGED=$((CHANGED + 1))
+        fi
+    done <<< "$STATIC_FILES"
+else
+    echo -e "  ${YELLOW}No static files contain the current domain.${NC}"
 fi
 
 echo ""
@@ -140,6 +172,11 @@ echo ""
 echo -e "  Old domain: ${RED}${CURRENT_DOMAIN}${NC}"
 echo -e "  New domain: ${GREEN}${NEW_DOMAIN}${NC}"
 echo -e "  Files updated: ${CYAN}${CHANGED}${NC}"
+echo ""
+echo -e "${CYAN}  How it works now:${NC}"
+echo -e "  - deployer.domain in values.yaml is the single source of truth"
+echo -e "  - ArgoCD passes it as clusterDomain to all Helm components"
+echo -e "  - This script only updates docs, catalog-info & software-template defaults"
 echo ""
 echo -e "${CYAN}  Key URLs for the new cluster:${NC}"
 echo -e "  Developer Hub:  https://backstage-developer-hub-developer-hub.${NEW_DOMAIN}"
