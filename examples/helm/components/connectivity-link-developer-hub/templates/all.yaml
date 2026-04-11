@@ -914,6 +914,29 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
+  name: secrets-rhdh
+  namespace: developer-hub
+  labels:
+    rhdh.redhat.com/ext-config-sync: "true"
+type: Opaque
+stringData:
+  BACKEND_SECRET: "{{ .Values.backendSecret | default "a01bb6ee68d5afbd9e82402b1a37a73d900bc653d6dc2375dec06bce6d62f34d" }}"
+  KEYCLOAK_BASE_URL: "https://rhbk.{{ .Values.clusterDomain }}"
+  KEYCLOAK_METADATA_URL: "https://rhbk.{{ .Values.clusterDomain }}/realms/backstage/.well-known/openid-configuration"
+  KEYCLOAK_CLIENT_ID: "backstage"
+  KEYCLOAK_CLIENT_SECRET: "FfzjFAAuQUGjZDtKUErTx9fOaqF7RV6m"
+  KEYCLOAK_REALM: "backstage"
+  RHDH_BASE_URL: "https://backstage-developer-hub-developer-hub.{{ .Values.clusterDomain }}"
+  RHDH_HOST: "https://backstage-developer-hub-developer-hub.{{ .Values.clusterDomain }}"
+  RHDH_CALLBACK_URL: "https://backstage-developer-hub-developer-hub.{{ .Values.clusterDomain }}/api/auth/oidc/handler/frame"
+  ARGOCD_INSTANCE_2_URL: "https://openshift-gitops-server-openshift-gitops.{{ .Values.clusterDomain }}"
+  ARGOCD_INSTANCE_2_USERNAME: "admin"
+  ARGOCD_INSTANCE_2_PASSWORD: "{{ .Values.argocdAdminPassword | default "change-me" }}"
+  MCP_TOKEN: "{{ .Values.mcpToken | default "IpIbd50gbMb1p2+iCigrhkm21pZwbn0g" }}"
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: llama-stack-secrets
   namespace: developer-hub
 type: Opaque
