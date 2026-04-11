@@ -230,6 +230,7 @@ spec:
 # ============================================================
 # Helm Chart Applications — third-party charts from external repos
 # ============================================================
+{{- if .Values.connectivityLink.helmApps }}
 {{- range .Values.connectivityLink.helmApps }}
 {{- if and . .enabled }}
 ---
