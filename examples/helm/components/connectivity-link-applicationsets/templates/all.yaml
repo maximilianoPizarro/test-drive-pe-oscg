@@ -47,8 +47,8 @@ metadata:
   name: gitea-argocd-token-setup
   namespace: openshift-gitops
   annotations:
-    argocd.argoproj.io/hook: PostSync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
   template:
     spec:
@@ -65,17 +65,33 @@ spec:
               GITEA="http://gitea-http.gitea.svc.cluster.local:3000"
               ADMIN_USER="gitea_admin"
               ADMIN_PASS="openshift"
+              KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+              KUBE_API="https://kubernetes.default.svc"
+              CA=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+
+              echo "Checking if secret already exists..."
+              SC=$(curl -sS -o /dev/null -w "%{http_code}" \
+                "$KUBE_API/api/v1/namespaces/openshift-gitops/secrets/gitea-argocd-token" \
+                -H "Authorization: Bearer $KUBE_TOKEN" --cacert "$CA" || true)
+              if [ "$SC" = "200" ]; then
+                echo "Secret gitea-argocd-token already exists. Done."
+                exit 0
+              fi
 
               echo "Waiting for Gitea API..."
-              until curl -sf "$GITEA/api/v1/version"; do sleep 3; done
+              for attempt in $(seq 1 60); do
+                if curl -sf "$GITEA/api/v1/version" >/dev/null 2>&1; then break; fi
+                echo "  attempt $attempt/60 ..."
+                sleep 5
+              done
+              curl -sf "$GITEA/api/v1/version" || { echo "Gitea not available after 5min" >&2; exit 1; }
 
-              echo "Checking for existing token..."
+              echo "Checking for existing Gitea token..."
               EXISTING=$(curl -sS -u "${ADMIN_USER}:${ADMIN_PASS}" \
                 "$GITEA/api/v1/users/${ADMIN_USER}/tokens" 2>/dev/null \
                 | grep -o '"name":"argocd-scm"' || true)
-
               if [ -n "$EXISTING" ]; then
-                echo "Token 'argocd-scm' already exists, deleting to recreate..."
+                echo "Deleting old token to recreate..."
                 curl -sS -o /dev/null -X DELETE \
                   "$GITEA/api/v1/users/${ADMIN_USER}/tokens/argocd-scm" \
                   -u "${ADMIN_USER}:${ADMIN_PASS}" || true
@@ -88,44 +104,35 @@ spec:
                 -H "Content-Type: application/json" \
                 -d '{"name":"argocd-scm","scopes":["read:organization","read:repository","read:issue","read:user"]}')
               TOKEN_VAL=$(echo "$TOKEN_RESP" | sed -n 's/.*"sha1":"\([^"]*\)".*/\1/p')
-
               if [ -z "$TOKEN_VAL" ]; then
-                echo "Failed to extract token from response: $TOKEN_RESP" >&2
+                echo "Failed to extract token: $TOKEN_RESP" >&2
                 exit 1
               fi
 
               echo "Creating Secret in openshift-gitops..."
-              KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-              KUBE_API="https://kubernetes.default.svc"
-              CA=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-
               TOKEN_B64=$(echo -n "$TOKEN_VAL" | base64)
               SECRET_JSON=$(printf '{"apiVersion":"v1","kind":"Secret","metadata":{"name":"gitea-argocd-token","namespace":"openshift-gitops"},"type":"Opaque","data":{"token":"%s"}}' "$TOKEN_B64")
-
               CODE=$(curl -sS -o /tmp/k8s_resp -w "%{http_code}" \
                 -X POST "$KUBE_API/api/v1/namespaces/openshift-gitops/secrets" \
                 -H "Authorization: Bearer $KUBE_TOKEN" \
                 -H "Content-Type: application/json" \
                 --cacert "$CA" \
                 -d "$SECRET_JSON" || true)
-
               if [ "$CODE" = "409" ]; then
                 echo "Secret exists, updating..."
-                PATCH_JSON=$(printf '{"data":{"token":"%s"}}' "$TOKEN_B64")
                 curl -sS -o /dev/null \
                   -X PATCH "$KUBE_API/api/v1/namespaces/openshift-gitops/secrets/gitea-argocd-token" \
                   -H "Authorization: Bearer $KUBE_TOKEN" \
                   -H "Content-Type: application/strategic-merge-patch+json" \
                   --cacert "$CA" \
-                  -d "$PATCH_JSON"
+                  -d "$(printf '{"data":{"token":"%s"}}' "$TOKEN_B64")"
               elif [ "$CODE" != "201" ]; then
                 echo "Secret creation failed: HTTP $CODE" >&2
                 cat /tmp/k8s_resp >&2 || true
                 exit 1
               fi
-
               echo "Gitea API token stored successfully."
-  backoffLimit: 3
+  backoffLimit: 5
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -156,6 +163,40 @@ spec:
                   ADMIN_PASS="openshift"
                   DOMAIN="{{ $.Values.clusterDomain }}"
                   USER_COUNT={{ $.Values.userCount | default 200 }}
+                  KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+                  KUBE_API="https://kubernetes.default.svc"
+                  CA=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+
+                  # Ensure gitea-argocd-token secret exists
+                  SC=$(curl -sS -o /dev/null -w "%{http_code}" \
+                    "$KUBE_API/api/v1/namespaces/openshift-gitops/secrets/gitea-argocd-token" \
+                    -H "Authorization: Bearer $KUBE_TOKEN" --cacert "$CA" || true)
+                  if [ "$SC" != "200" ]; then
+                    echo "Creating gitea-argocd-token secret..."
+                    EXISTING=$(curl -sS -u "${ADMIN_USER}:${ADMIN_PASS}" \
+                      "$GITEA/api/v1/users/${ADMIN_USER}/tokens" 2>/dev/null \
+                      | grep -o '"name":"argocd-scm"' || true)
+                    if [ -n "$EXISTING" ]; then
+                      curl -sS -o /dev/null -X DELETE \
+                        "$GITEA/api/v1/users/${ADMIN_USER}/tokens/argocd-scm" \
+                        -u "${ADMIN_USER}:${ADMIN_PASS}" || true
+                    fi
+                    TOKEN_RESP=$(curl -sS -X POST \
+                      "$GITEA/api/v1/users/${ADMIN_USER}/tokens" \
+                      -u "${ADMIN_USER}:${ADMIN_PASS}" \
+                      -H "Content-Type: application/json" \
+                      -d '{"name":"argocd-scm","scopes":["read:organization","read:repository","read:issue","read:user"]}')
+                    TOKEN_VAL=$(echo "$TOKEN_RESP" | sed -n 's/.*"sha1":"\([^"]*\)".*/\1/p')
+                    if [ -n "$TOKEN_VAL" ]; then
+                      TOKEN_B64=$(echo -n "$TOKEN_VAL" | base64)
+                      curl -sS -o /dev/null -X POST \
+                        "$KUBE_API/api/v1/namespaces/openshift-gitops/secrets" \
+                        -H "Authorization: Bearer $KUBE_TOKEN" \
+                        -H "Content-Type: application/json" --cacert "$CA" \
+                        -d "$(printf '{"apiVersion":"v1","kind":"Secret","metadata":{"name":"gitea-argocd-token","namespace":"openshift-gitops"},"type":"Opaque","data":{"token":"%s"}}' "$TOKEN_B64")" || true
+                      echo "Secret created."
+                    fi
+                  fi
 
                   for i in $(seq 1 $USER_COUNT); do
                     USER="user${i}"

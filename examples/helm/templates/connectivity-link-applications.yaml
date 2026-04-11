@@ -98,6 +98,32 @@ spec:
       kind: ConfigMap
       jsonPointers:
         - /metadata/annotations
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/volumeClaimTemplates
+        - /spec/template/metadata/annotations
+        - /spec/template/metadata/labels
+        - /spec/persistentVolumeClaimRetentionPolicy
+        - /spec/updateStrategy
+    - group: rhdh.redhat.com
+      kind: Backstage
+      jsonPointers:
+        - /metadata/annotations
+        - /metadata/managedFields
+        - /status
+        - /spec/deployment
+    - group: janus-idp.io
+      kind: Backstage
+      jsonPointers:
+        - /metadata/annotations
+        - /status
+        - /spec/deployment
+    - group: argoproj.io
+      kind: ApplicationSet
+      jsonPointers:
+        - /metadata/annotations
+        - /status
   source:
     repoURL: {{ $.Values.gitops.repoUrl }}
     targetRevision: {{ $.Values.gitops.revision }}
@@ -248,6 +274,31 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: {{ $.Values.argocd.project }}
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/volumeClaimTemplates
+        - /spec/template/metadata/annotations
+        - /spec/template/metadata/labels
+        - /spec/persistentVolumeClaimRetentionPolicy
+        - /spec/updateStrategy
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/template/metadata/annotations
+    - group: ""
+      kind: Service
+      jsonPointers:
+        - /spec/clusterIP
+        - /spec/clusterIPs
+        - /spec/ipFamilies
+        - /spec/ipFamilyPolicy
+        - /spec/internalTrafficPolicy
+    - group: ""
+      kind: Secret
+      jsonPointers:
+        - /data
   source:
     repoURL: {{ .repoURL }}
     chart: {{ .chart }}
@@ -266,6 +317,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - RespectIgnoreDifferences=true
 {{- end }}
 {{- end }}
 {{- end }}
