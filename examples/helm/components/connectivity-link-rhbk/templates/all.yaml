@@ -2395,6 +2395,23 @@ spec:
       totp: false
       username: user{{ $n }}
     {{- end }}
+    - credentials:
+      - temporary: false
+        type: password
+        value: Welcome123!
+      disableableCredentialTypes: []
+      email: platformadmin@developer-hub.local
+      emailVerified: true
+      enabled: true
+      firstName: Platform
+      groups:
+      - /platformengineers
+      lastName: Admin
+      realmRoles:
+      - default-roles-backstage
+      requiredActions: []
+      totp: false
+      username: platformadmin
     verifiableCredentialsEnabled: false
     verifyEmail: false
     waitIncrementSeconds: 60
