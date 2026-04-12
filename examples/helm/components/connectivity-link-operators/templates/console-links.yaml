@@ -110,4 +110,4 @@ spec:
   text: Developer Hub
   applicationMenu:
     section: Workshop Tools
-    imageURL: https://developers.redhat.com/sites/default/files/styles/large/public/RHDH.png
+    imageURL: https://backstage.io/logo_assets/svg/Icon_Teal.svg
