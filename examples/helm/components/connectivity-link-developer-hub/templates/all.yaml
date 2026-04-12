@@ -438,6 +438,12 @@ data:
           target: https://github.com/maximilianoPizarro/test-drive-pe-oscg/blob/main/examples/helm/components/connectivity-link-mailpit/catalog-info.yaml
       rules:
         - allow: [Component, Group, User, Resource, Location, Template, API, APIProduct, System, Domain]
+    techdocs:
+      builder: local
+      generator:
+        runIn: local
+      publisher:
+        type: local
     proxy:
       endpoints:
         '/gitea':
