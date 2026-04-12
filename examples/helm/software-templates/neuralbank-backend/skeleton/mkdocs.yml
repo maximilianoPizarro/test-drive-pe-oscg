@@ -1,0 +1,7 @@
+site_name: ${{ values.name }}
+site_description: ${{ values.description }}
+docs_dir: .
+nav:
+  - Home: README.md
+plugins:
+  - techdocs-core

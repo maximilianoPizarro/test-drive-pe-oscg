@@ -4,6 +4,7 @@ metadata:
   name: ${{values.uniqueName}}
   description: ${{values.description}}
   annotations:
+    backstage.io/techdocs-ref: dir:.
     backstage.io/kubernetes-id: ${{values.uniqueName}}
     backstage.io/kubernetes-namespace: ${{values.namespace}}
     janus-idp.io/tekton: ${{values.uniqueName}}
