@@ -111,3 +111,17 @@ spec:
   applicationMenu:
     section: Workshop Tools
     imageURL: https://backstage.io/logo_assets/svg/Icon_Teal.svg
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: mailpit-link
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  href: https://n8n-mailpit-openshift-lightspeed.{{ $domain }}
+  location: ApplicationMenu
+  text: Mailpit
+  applicationMenu:
+    section: Workshop Tools
+    imageURL: https://raw.githubusercontent.com/axllent/mailpit/develop/server/ui-src/public/mailpit.svg
