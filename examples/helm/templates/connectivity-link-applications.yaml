@@ -110,6 +110,8 @@ spec:
         - /spec/template/metadata/labels
         - /spec/persistentVolumeClaimRetentionPolicy
         - /spec/updateStrategy
+      managedFieldsManagers:
+        - kube-controller-manager
     - group: rhdh.redhat.com
       kind: Backstage
       jsonPointers:
