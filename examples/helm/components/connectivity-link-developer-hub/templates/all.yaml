@@ -735,6 +735,7 @@ data:
                           * [Gitea](https://gitea-gitea.{{ .Values.clusterDomain }}) - Source Code Repositories
                           * [Red Hat Build of Keycloak](https://rhbk.{{ .Values.clusterDomain }}/admin/master/console) - Identity & Access Management
                           * [Workshop Registration](https://workshop-registration.{{ .Values.clusterDomain }}) - Workshop Sign-up
+                          * [Mailpit](https://n8n-mailpit-openshift-lightspeed.{{ .Values.clusterDomain }}) - Email Testing
                   - mountPoint: home.page/cards
                     importName: MarkdownCard
                     config:
