@@ -12,7 +12,7 @@ spec:
   text: Workshop Registration
   applicationMenu:
     section: Workshop Tools
-    imageURL: https://upload.wikimedia.org/wikipedia/commons/3/3a/OpenShift-LogoType.svg
+    imageURL: https://raw.githubusercontent.com/maximilianoPizarro/test-drive-pe-oscg/main/docs/assets/images/Logo-OSC_with_padding.png
 ---
 apiVersion: console.openshift.io/v1
 kind: ConsoleLink
@@ -124,4 +124,4 @@ spec:
   text: Mailpit
   applicationMenu:
     section: Workshop Tools
-    imageURL: https://raw.githubusercontent.com/axllent/mailpit/develop/server/ui-src/public/mailpit.svg
+    imageURL: https://fonts.gstatic.com/s/i/materialiconsoutlined/mail/v6/24px.svg
