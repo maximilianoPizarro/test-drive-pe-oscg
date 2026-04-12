@@ -9,9 +9,9 @@ metadata:
 components:
   - name: tools
     container:
-      image: registry.redhat.io/devspaces/udi-rhel8:latest
-      memoryLimit: 3Gi
-      cpuLimit: "2"
+      image: registry.redhat.io/devspaces/udi-rhel9:latest
+      memoryLimit: 2Gi
+      cpuLimit: "1"
       mountSources: true
       volumeMounts:
         - name: m2

@@ -142,6 +142,7 @@ spec:
     helm:
       valuesObject:
         clusterDomain: {{ $domain }}
+        userCount: {{ $.Values.userCount | default 200 }}
     {{- else if eq .path "connectivity-link-operators" }}
     helm:
       valuesObject:
