@@ -233,10 +233,9 @@ spec:
                       HOOKS=$(curl -sS -u "${ADMIN_USER}:${ADMIN_PASS}" \
                         "${GITEA}/api/v1/repos/${ORG}/${REPO}/hooks" 2>/dev/null || echo "[]")
 
-                      LISTENER_URL="https://el-${REPO}-listener-${NS}.${DOMAIN}"
                       LISTENER_SVC="http://el-${REPO}-listener.${NS}.svc.cluster.local:8080"
 
-                      if echo "$HOOKS" | grep -q "$LISTENER_URL"; then
+                      if echo "$HOOKS" | grep -q "$LISTENER_SVC"; then
                         RUNS_RESP=$(curl -sS \
                           "$KUBE_API/apis/tekton.dev/v1/namespaces/${NS}/pipelineruns?labelSelector=tekton.dev/pipeline=${REPO}-build&limit=1" \
                           -H "Authorization: Bearer $KUBE_TOKEN" --cacert "$CA" 2>/dev/null || echo '{"items":[]}')
@@ -256,12 +255,12 @@ spec:
                         continue
                       fi
 
-                      echo "Creating webhook for ${ORG}/${REPO} → ${LISTENER_URL}"
+                      echo "Creating webhook for ${ORG}/${REPO} → ${LISTENER_SVC}"
                       curl -sS -o /dev/null -X POST \
                         "${GITEA}/api/v1/repos/${ORG}/${REPO}/hooks" \
                         -u "${ADMIN_USER}:${ADMIN_PASS}" \
                         -H "Content-Type: application/json" \
-                        -d "{\"type\":\"gitea\",\"config\":{\"url\":\"${LISTENER_URL}\",\"content_type\":\"json\"},\"events\":[\"push\"],\"active\":true}" || true
+                        -d "{\"type\":\"gitea\",\"config\":{\"url\":\"${LISTENER_SVC}\",\"content_type\":\"json\"},\"events\":[\"push\"],\"active\":true}" || true
 
                       # Trigger initial build right after webhook creation
                       BRANCH_INFO=$(curl -sS -u "${ADMIN_USER}:${ADMIN_PASS}" \
