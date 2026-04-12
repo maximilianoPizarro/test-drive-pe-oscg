@@ -931,7 +931,6 @@ stringData:
   RHDH_CALLBACK_URL: "https://backstage-developer-hub-developer-hub.{{ .Values.clusterDomain }}/api/auth/oidc/handler/frame"
   ARGOCD_INSTANCE_2_URL: "https://openshift-gitops-server-openshift-gitops.{{ .Values.clusterDomain }}"
   ARGOCD_INSTANCE_2_USERNAME: "admin"
-  ARGOCD_INSTANCE_2_PASSWORD: "placeholder"
   MCP_TOKEN: "{{ .Values.mcpToken | default "IpIbd50gbMb1p2+iCigrhkm21pZwbn0g" }}"
 ---
 apiVersion: v1
@@ -966,6 +965,7 @@ spec:
     extraEnvs:
       secrets:
       - name: secrets-rhdh
+      - name: rhdh-argocd-credentials
       - name: llama-stack-secrets
       - key: token
         name: developer-hub-k8s-sa-token
@@ -1104,16 +1104,25 @@ spec:
             exit 1
           fi
 
-          CURRENT=$(oc get secret secrets-rhdh -n developer-hub -o jsonpath='{.data.ARGOCD_INSTANCE_2_PASSWORD}' | base64 -d)
+          CURRENT=$(oc get secret rhdh-argocd-credentials -n developer-hub -o jsonpath='{.data.ARGOCD_INSTANCE_2_PASSWORD}' 2>/dev/null | base64 -d 2>/dev/null)
           if [ "$CURRENT" = "$ARGOCD_PWD" ]; then
             echo "ArgoCD password already up to date"
             exit 0
           fi
 
-          echo "Patching secrets-rhdh with real ArgoCD password..."
-          ENCODED=$(echo -n "$ARGOCD_PWD" | base64 -w0)
-          oc patch secret secrets-rhdh -n developer-hub --type='json' \
-            -p="[{\"op\":\"replace\",\"path\":\"/data/ARGOCD_INSTANCE_2_PASSWORD\",\"value\":\"$ENCODED\"}]"
+          echo "Creating/updating rhdh-argocd-credentials secret..."
+          cat <<EOSECRET | oc apply -f -
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: rhdh-argocd-credentials
+            namespace: developer-hub
+            labels:
+              rhdh.redhat.com/ext-config-sync: "true"
+          type: Opaque
+          stringData:
+            ARGOCD_INSTANCE_2_PASSWORD: "$ARGOCD_PWD"
+          EOSECRET
 
           echo "Restarting Developer Hub to pick up new password..."
           oc rollout restart deployment/backstage-developer-hub -n developer-hub
