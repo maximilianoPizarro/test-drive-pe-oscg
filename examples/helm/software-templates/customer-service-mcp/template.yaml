@@ -40,7 +40,7 @@ spec:
         clusterDomain:
           title: Cluster Domain
           type: string
-          default: "apps.cluster-j8hhq.dynamic.redhatworkshops.io"
+          default: "apps.cluster-8dvx7.dynamic.redhatworkshops.io"
           ui:widget: hidden
   steps:
     - id: fetch-skeleton
