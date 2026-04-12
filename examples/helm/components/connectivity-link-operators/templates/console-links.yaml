@@ -12,7 +12,7 @@ spec:
   text: Workshop Registration
   applicationMenu:
     section: Workshop Tools
-    imageURL: https://raw.githubusercontent.com/openshift/console/master/frontend/public/imgs/logos/openshift-platform.svg
+    imageURL: https://upload.wikimedia.org/wikipedia/commons/3/3a/OpenShift-LogoType.svg
 ---
 apiVersion: console.openshift.io/v1
 kind: ConsoleLink
@@ -40,7 +40,7 @@ spec:
   text: Kiali
   applicationMenu:
     section: Observability
-    imageURL: https://raw.githubusercontent.com/kiali/kiali/master/frontend/public/favicon.ico
+    imageURL: https://avatars.githubusercontent.com/u/36001875?s=200
 ---
 apiVersion: console.openshift.io/v1
 kind: ConsoleLink
