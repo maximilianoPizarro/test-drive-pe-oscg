@@ -81,11 +81,16 @@ spec:
         ocprunCpuStressTest, ocprunNetworkTest,
         ocprunStorageBenchmark, ocprunDatabaseBenchmark, ocprunKubeBurner.
 
-      Developer Hub tools (prefix rhdh):
-        Use rhdh-prefixed tools for catalog queries, software templates,
-        and TechDocs operations.
+      Developer Hub / Backstage tools (NO prefix, use exact names):
+        fetch-template-metadata — list/search Software Templates
+        fetch-catalog-entities — list/search catalog entities (Components, APIs, Systems)
+        register-catalog-entities — register new entities from a URL
+        unregister-catalog-entities — remove registered entities
+        fetch-techdocs — list entities with TechDocs
+        analyze-techdocs-coverage — documentation coverage stats
+        retrieve-techdocs-content — get TechDocs content for an entity
 
-      Always prefer tools over documentation answers.
+      CRITICAL: Use ONLY the exact tool names listed above. Never invent tool names.
     deployment:
       api:
         replicas: 1
