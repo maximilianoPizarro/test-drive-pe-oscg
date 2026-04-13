@@ -760,80 +760,12 @@ spec:
     name: k8s-mcp-server-route
   toolPrefix: k8s
   path: /mcp
----
-##
-## 8b. RHDH MCP Server — ExternalName, HTTPRoute, Secret, MCPServerRegistration
-##
-apiVersion: v1
-kind: Service
-metadata:
-  name: rhdh-mcp-server-proxy
-  namespace: mcp-system
-  annotations:
-    argocd.argoproj.io/sync-wave: "3"
-spec:
-  type: ExternalName
-  externalName: backstage-developer-hub.developer-hub.svc.cluster.local
-  ports:
-    - port: 80
-      protocol: TCP
-      targetPort: 80
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: rhdh-mcp-credentials
-  namespace: mcp-system
-  labels:
-    mcp.kuadrant.io/secret: "true"
-  annotations:
-    argocd.argoproj.io/sync-wave: "3"
-type: Opaque
-stringData:
-  token: "{{ .Values.rhdhBackendSecret | default "a01bb6ee68d5afbd9e82402b1a37a73d900bc653d6dc2375dec06bce6d62f34d" }}"
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: rhdh-mcp-server-route
-  namespace: mcp-system
-  annotations:
-    argocd.argoproj.io/sync-wave: "4"
-    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-spec:
-  hostnames:
-    - mcp-gateway.{{ .Values.clusterDomain }}
-  parentRefs:
-    - group: gateway.networking.k8s.io
-      kind: Gateway
-      name: mcp-gateway
-      namespace: mcp-system
-      sectionName: mcp
-  rules:
-    - backendRefs:
-        - name: rhdh-mcp-server-proxy
-          port: 80
-      matches:
-        - path:
-            type: PathPrefix
-            value: /rhdh-mcp-server/api/mcp-actions/v1
----
-apiVersion: mcp.kuadrant.io/v1alpha1
-kind: MCPServerRegistration
-metadata:
-  name: rhdh-mcp-server
-  namespace: mcp-system
-  annotations:
-    argocd.argoproj.io/sync-wave: "5"
-    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
-spec:
-  targetRef:
-    name: rhdh-mcp-server-route
-  toolPrefix: rhdh
-  path: /api/mcp-actions/v1/sse
-  credentialRef:
-    name: rhdh-mcp-credentials
-    key: token
+{{/*
+  RHDH MCP Server via Kuadrant Gateway is DISABLED.
+  Reason: RHDH plugin uses legacy SSE transport (GET /sse + POST /messages?sessionId=X),
+  but the Kuadrant mcp-controller only supports Streamable HTTP (POST /mcp).
+  RHDH MCP is accessed directly by OLS via the rhdh-catalog entry in OLSConfig.
+*/}}
 ---
 ##
 ## 9. Route — OpenShift route to expose the gateway

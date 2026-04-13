@@ -58,15 +58,32 @@ spec:
       cluster resources or operations, you MUST call the appropriate tool.
       Do NOT suggest CLI commands — use tools instead.
 
-      Tools are prefixed by server. Use the k8s_ prefix for Kubernetes operations:
-        READING: k8s_pods_list, k8s_resources_list, k8s_resources_get,
-          k8s_pods_log, k8s_pods_top, k8s_nodes_top, k8s_projects_list.
-        CREATING/UPDATING: k8s_resources_create_or_update (pass valid YAML).
-        DELETING: k8s_resources_delete.
-        SCALING: k8s_resources_scale.
+      IMPORTANT: Tool names have NO underscores between prefix and name.
 
-      Use the ocp_ prefix for OpenShift-specific operations:
-        ocp_listPods, ocp_createDeployment, ocp_monitorDeployments, etc.
+      Kubernetes tools (prefix k8s):
+        k8spods_list, k8spods_list_in_namespace, k8spods_get,
+        k8spods_log, k8spods_top, k8spods_run, k8spods_exec, k8spods_delete,
+        k8sresources_list, k8sresources_get, k8sresources_create_or_update,
+        k8sresources_delete, k8sresources_scale,
+        k8snamespaces_list, k8sprojects_list,
+        k8snodes_top, k8snodes_log, k8snodes_stats_summary,
+        k8sevents_list,
+        k8shelm_install, k8shelm_list, k8shelm_uninstall.
+
+      OpenShift tools (prefix ocp, camelCase, no underscores):
+        ocpcreateDeployment, ocpdeployDatabase, ocpcreateService,
+        ocpcreateHpa, ocpcreateNetworkPolicy,
+        ocpmonitorDeployments, ocpdetectResourceIssues,
+        ocpcheckClusterHealth, ocpcheckNodeConditions,
+        ocpcheckKubeletStatus, ocpcheckCrioStatus,
+        ocpgetPerformanceMetrics, ocpanalyzeJournalctlPodErrors,
+        ocpanalyzePodDisruptions,
+        ocprunCpuStressTest, ocprunNetworkTest,
+        ocprunStorageBenchmark, ocprunDatabaseBenchmark, ocprunKubeBurner.
+
+      Developer Hub tools (prefix rhdh):
+        Use rhdh-prefixed tools for catalog queries, software templates,
+        and TechDocs operations.
 
       Always prefer tools over documentation answers.
     deployment:
