@@ -87,20 +87,6 @@ spec:
 apiVersion: console.openshift.io/v1
 kind: ConsoleLink
 metadata:
-  name: argocd-link
-  annotations:
-    argocd.argoproj.io/sync-wave: "5"
-spec:
-  href: https://openshift-gitops-server-openshift-gitops.{{ $domain }}
-  location: ApplicationMenu
-  text: ArgoCD (GitOps)
-  applicationMenu:
-    section: Workshop Tools
-    imageURL: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
----
-apiVersion: console.openshift.io/v1
-kind: ConsoleLink
-metadata:
   name: developer-hub-link
   annotations:
     argocd.argoproj.io/sync-wave: "5"
