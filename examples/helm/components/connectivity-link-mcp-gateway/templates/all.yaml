@@ -812,6 +812,8 @@ spec:
               containerPort: 3000
               protocol: TCP
           env:
+            - name: HOME
+              value: "/tmp"
             - name: ARGOCD_BASE_URL
               value: "https://openshift-gitops-server.openshift-gitops.svc.cluster.local"
             - name: ARGOCD_API_TOKEN
